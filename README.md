@@ -48,7 +48,3 @@ docs/design.md
 index.html
 ```
 
-If you'd like, I can:
-- Add mobile touch controls (virtual joystick)
-- Wire in art from your artist and add audio
-- Add a simple shop between runs and more enemy types
