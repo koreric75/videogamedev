@@ -99,13 +99,13 @@ export const config: GameConfig = {
  * Get a configuration value by path
  * Example: getConfig('player.speed') returns 200
  */
-export function getConfig(path: string): any {
+export function getConfig(path: string): unknown {
   const keys = path.split('.');
-  let value: any = config;
+  let value: unknown = config;
   
   for (const key of keys) {
     if (value && typeof value === 'object' && key in value) {
-      value = value[key];
+      value = (value as Record<string, unknown>)[key];
     } else {
       return undefined;
     }
@@ -117,18 +117,18 @@ export function getConfig(path: string): any {
 /**
  * Set a configuration value by path (useful for runtime overrides)
  */
-export function setConfig(path: string, newValue: any): void {
+export function setConfig(path: string, newValue: unknown): void {
   const keys = path.split('.');
   const lastKey = keys.pop();
   
   if (!lastKey) return;
   
-  let obj: any = config;
+  let obj: Record<string, unknown> = config as unknown as Record<string, unknown>;
   for (const key of keys) {
     if (!(key in obj)) {
       obj[key] = {};
     }
-    obj = obj[key];
+    obj = obj[key] as Record<string, unknown>;
   }
   
   obj[lastKey] = newValue;

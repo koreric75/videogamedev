@@ -17,13 +17,6 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
       },
-      output: {
-        manualChunks: {
-          // Separate vendor chunks for better caching
-          engine: ['./src/game/engine.ts'],
-          ui: ['./src/game/ui/spriteInspector.ts', './src/game/ui/joystick.ts'],
-        },
-      },
     },
   },
   

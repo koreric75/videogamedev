@@ -44,9 +44,9 @@ export class MainScene {
     this.entityManager.add(this.player);
     
     // Setup player health callback
-    const health = this.player.getComponent('health');
-    if (health) {
-      (health as any).onDeath = () => {
+    const health = this.player.getComponent<HealthComponent>('health');
+    if (health && health.onDeath) {
+      health.onDeath = () => {
         this.gameState = GameState.GAME_OVER;
       };
     }
@@ -180,13 +180,13 @@ export class MainScene {
         
         // Enemy collision
         if (sprite?.color === config.enemy.color) {
-          const health = this.player.getComponent('health');
+          const health = this.player.getComponent<HealthComponent>('health');
           if (health) {
-            (health as any).current -= config.enemy.damage;
-            if ((health as any).current <= 0) {
-              (health as any).current = 0;
-              if ((health as any).onDeath) {
-                (health as any).onDeath();
+            health.current -= config.enemy.damage;
+            if (health.current <= 0) {
+              health.current = 0;
+              if (health.onDeath) {
+                health.onDeath();
               }
             }
           }
@@ -194,11 +194,11 @@ export class MainScene {
         
         // Pickup collision
         if (sprite?.color === config.pickup.color) {
-          const health = this.player.getComponent('health');
+          const health = this.player.getComponent<HealthComponent>('health');
           if (health) {
-            (health as any).current = Math.min(
-              (health as any).current + config.pickup.healAmount,
-              (health as any).max
+            health.current = Math.min(
+              health.current + config.pickup.healAmount,
+              health.max
             );
           }
           this.score += 10;
@@ -255,14 +255,14 @@ export class MainScene {
     
     // Render health bar
     if (this.player) {
-      const health = this.player.getComponent('health');
+      const health = this.player.getComponent<HealthComponent>('health');
       if (health) {
         RenderSystem.renderHealthBar(
           ctx,
           10,
           config.canvas.height - 20,
-          (health as any).current,
-          (health as any).max,
+          health.current,
+          health.max,
           150,
           10
         );
