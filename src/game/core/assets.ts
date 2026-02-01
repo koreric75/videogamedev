@@ -30,3 +30,28 @@ export async function loadSprite(name: string, path: string) {
         sprites[name] = img;
         return img;
     }
+}
+
+export async function loadDefaultSprites(): Promise<void> {
+    // Try to load default sprites if they exist
+    const defaultSprites = [
+        { name: 'player', path: 'assets/sprites/player.svg' },
+        { name: 'enemy', path: 'assets/sprites/enemy.svg' },
+        { name: 'pickup', path: 'assets/sprites/pickup.svg' },
+        { name: 'wall', path: 'assets/sprites/wall.svg' },
+    ];
+
+    for (const { name, path } of defaultSprites) {
+        await loadSprite(name, path).catch(() => {
+            // Ignore missing files - will use placeholders
+        });
+    }
+}
+
+export function getSprite(name: string): HTMLImageElement | undefined {
+    return sprites[name];
+}
+
+export function getAllSprites(): SpriteMap {
+    return { ...sprites };
+}
