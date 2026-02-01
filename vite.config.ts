@@ -11,7 +11,7 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: true,
-    minify: 'terser',
+    minify: 'esbuild',
     target: 'es2020',
     rollupOptions: {
       input: {
@@ -23,13 +23,6 @@ export default defineConfig({
           engine: ['./src/game/engine.ts'],
           ui: ['./src/game/ui/spriteInspector.ts', './src/game/ui/joystick.ts'],
         },
-      },
-    },
-    // Optimize for production
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console logs in production
-        drop_debugger: true,
       },
     },
   },

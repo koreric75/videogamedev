@@ -3,7 +3,7 @@
  * Simple entity-component architecture for game objects
  */
 
-import { config } from './config';
+import { config } from '../config';
 
 export interface Vector2 {
   x: number;
