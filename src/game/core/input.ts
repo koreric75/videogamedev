@@ -130,7 +130,7 @@ export class InputSystem {
    * Get mouse position
    */
   getMousePosition(): { x: number; y: number } {
-    return { ...this.state.mouse };
+    return { x: this.state.mouse.x, y: this.state.mouse.y };
   }
   
   /**
