@@ -1,7 +1,7 @@
 {
-  "name": "my-game",
+  "name": "ruins-of-arkan",
   "version": "1.0.0",
-  "description": "A simple 2D game built from scratch.",
+  "description": "A compact top-down roguelite prototype built with TypeScript and HTML5 Canvas, featuring Entity-Component-System architecture.",
   "main": "src/main.ts",
   "scripts": {
     "start": "tsc && node dist/main.js",
@@ -34,8 +34,23 @@
   "keywords": [
     "game",
     "typescript",
-    "2D"
+    "2D",
+    "roguelite",
+    "ecs",
+    "entity-component-system",
+    "html5-canvas",
+    "game-development",
+    "vite",
+    "mobile-game"
   ],
-  "author": "Your Name",
-  "license": "MIT"
+  "author": "koreric75",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koreric75/videogamedev.git"
+  },
+  "bugs": {
+    "url": "https://github.com/koreric75/videogamedev/issues"
+  },
+  "homepage": "https://github.com/koreric75/videogamedev#readme"
 }
