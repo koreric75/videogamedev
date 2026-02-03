@@ -528,8 +528,8 @@ config.debug.showColliders = true; // Visualize collisions
 Test individual systems in isolation:
 ```typescript
 test('Physics system detects collision', () => {
-  const e1 = createEntity();
-  const e2 = createEntity();
+  const e1 = new Entity();
+  const e2 = new Entity();
   const collision = physics.detectCollision(e1, e2);
   expect(collision).toBe(true);
 });

@@ -480,20 +480,21 @@ Components are typically added through factory functions:
 
 ```typescript
 function createPlayer(x: number, y: number): Entity {
-  const entity = generateEntityId();
+  const entity = new Entity();
   
-  addComponent(entity, {
+  entity.addComponent({
     type: 'transform',
-    x,
-    y,
-    rotation: 0
+    position: { x, y },
+    rotation: 0,
+    scale: { x: 1, y: 1 }
   });
   
-  addComponent(entity, {
+  entity.addComponent({
     type: 'physics',
-    velocityX: 0,
-    velocityY: 0,
-    mass: 1
+    velocity: { x: 0, y: 0 },
+    acceleration: { x: 0, y: 0 },
+    mass: 1,
+    friction: 0.8
   });
   
   return entity;

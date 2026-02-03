@@ -128,7 +128,7 @@ src/
 
 **1. Entities** are game objects:
 ```typescript
-const player = createEntity();  // Just an ID number
+const player = new Entity();  // Creates a new entity instance
 ```
 
 **2. Components** are data:
