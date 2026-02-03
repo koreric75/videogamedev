@@ -226,7 +226,7 @@ If sprites are missing, the game generates placeholder graphics.
 
 ### Learn the Architecture
 
-Read the [Architecture Documentation](docs/architecture.md) to understand how the game is structured using Entity-Component-System (ECS) design.
+Read the [Architecture Documentation](architecture.md) to understand how the game is structured using Entity-Component-System (ECS) design.
 
 ### Contribute
 
@@ -234,7 +234,7 @@ Want to add features or fix bugs? See [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ### Deploy Your Game
 
-Ready to share your game with the world? Check out the [Deployment Guide](docs/DEPLOYMENT.md) for various hosting options.
+Ready to share your game with the world? Check out the [Deployment Guide](DEPLOYMENT.md) for various hosting options.
 
 ## 🎓 Learning Resources
 
@@ -257,8 +257,8 @@ New to TypeScript or game development?
 
 Need help?
 
-1. Check the [README.md](README.md) for detailed information
-2. Review the [Architecture Documentation](docs/architecture.md)
+1. Check the [README.md](../README.md) for detailed information
+2. Review the [Architecture Documentation](architecture.md)
 3. Search existing [GitHub Issues](https://github.com/koreric75/videogamedev/issues)
 4. Open a new issue if your problem isn't covered
 
@@ -274,4 +274,4 @@ You now have everything you need to:
 
 ---
 
-[Back to README](../README.md) | [View Architecture](docs/architecture.md) | [Contributing Guide](CONTRIBUTING.md)
+[Back to README](../README.md) | [View Architecture](architecture.md) | [Contributing Guide](../CONTRIBUTING.md)
