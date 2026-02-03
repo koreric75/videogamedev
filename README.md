@@ -350,9 +350,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**[Play Now](http://localhost:5173)** • **[Documentation](docs/)** • **[Contribute](docs/CONTRIBUTING.md)** • **[Roadmap](docs/ROADMAP.md)**
+**[Documentation](docs/)** • **[Contribute](docs/CONTRIBUTING.md)** • **[Roadmap](docs/ROADMAP.md)**
 
 Made with ❤️ and TypeScript
+
+*To play locally, run `npm run dev` and open http://localhost:5173 in your browser*
 
 </div>
 

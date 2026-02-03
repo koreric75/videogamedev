@@ -81,10 +81,10 @@ interface Transform {
 }
 
 // Entity has multiple components
-const player: Entity = createEntity();
-addComponent(player, transform);
-addComponent(player, physics);
-addComponent(player, sprite);
+const player: Entity = new Entity();
+player.addComponent(transform);
+player.addComponent(physics);
+player.addComponent(sprite);
 ```
 
 **Benefits**:
@@ -354,9 +354,9 @@ User Input → Input System → Game Logic → Physics System
 ```typescript
 {
   type: 'transform',
-  x: 100,
-  y: 100,
-  rotation: 0
+  position: { x: 100, y: 100 },
+  rotation: 0,
+  scale: { x: 1, y: 1 }
 }
 ```
 
@@ -364,8 +364,8 @@ User Input → Input System → Game Logic → Physics System
 ```typescript
 {
   type: 'physics',
-  velocityX: 0,
-  velocityY: 0,
+  velocity: { x: 0, y: 0 },
+  acceleration: { x: 0, y: 0 },
   mass: 1,
   friction: 0.8
 }
@@ -431,12 +431,14 @@ if (collision) {
 **Used for**: Creating entities with predefined components
 
 ```typescript
-function createPlayer(x: number, y: number): Entity {
-  const entity = generateEntityId();
-  addComponent(entity, createTransform(x, y));
-  addComponent(entity, createPhysics());
-  addComponent(entity, createSprite());
-  return entity;
+class EntityFactory {
+  static createPlayer(x: number, y: number): Entity {
+    const entity = new Entity();
+    entity.addComponent(createTransform(x, y));
+    entity.addComponent(createPhysics());
+    entity.addComponent(createSprite());
+    return entity;
+  }
 }
 ```
 
@@ -449,7 +451,7 @@ function createPlayer(x: number, y: number): Entity {
 class Player extends Character { }
 
 // Use composition
-const player = createEntity();
+const player = new Entity();
 player.addComponent(transform);
 player.addComponent(controllable);
 player.addComponent(health);
@@ -526,8 +528,8 @@ config.debug.showColliders = true; // Visualize collisions
 Test individual systems in isolation:
 ```typescript
 test('Physics system detects collision', () => {
-  const e1 = createEntity();
-  const e2 = createEntity();
+  const e1 = new Entity();
+  const e2 = new Entity();
   const collision = physics.detectCollision(e1, e2);
   expect(collision).toBe(true);
 });
