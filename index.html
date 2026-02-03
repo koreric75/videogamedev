@@ -1,12 +1,157 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>My Game</title>
+    <title>Ruins of Arkan - Roguelite Survival Game</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="A top-down roguelite survival game built with TypeScript and HTML5 Canvas">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #fff;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      
+      #header {
+        text-align: center;
+        padding: 20px;
+        max-width: 800px;
+      }
+      
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        color: #4ecca3;
+        text-shadow: 0 0 10px rgba(78, 204, 163, 0.5);
+      }
+      
+      #subtitle {
+        font-size: 1.2em;
+        color: #a8dadc;
+        margin-bottom: 20px;
+      }
+      
+      #app {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+      }
+      
+      canvas {
+        border: 3px solid #4ecca3;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(78, 204, 163, 0.3);
+        max-width: 95vw;
+        max-height: 70vh;
+      }
+      
+      #controls {
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        max-width: 640px;
+        text-align: center;
+      }
+      
+      #controls h3 {
+        color: #4ecca3;
+        margin-bottom: 10px;
+      }
+      
+      #controls p {
+        color: #a8dadc;
+        margin: 5px 0;
+        font-size: 0.9em;
+      }
+      
+      .key {
+        display: inline-block;
+        background: rgba(78, 204, 163, 0.2);
+        border: 1px solid #4ecca3;
+        border-radius: 4px;
+        padding: 2px 8px;
+        margin: 0 3px;
+        font-family: monospace;
+        font-weight: bold;
+        color: #4ecca3;
+      }
+      
+      #footer {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 0.8em;
+        color: #666;
+      }
+      
+      #footer a {
+        color: #4ecca3;
+        text-decoration: none;
+      }
+      
+      #footer a:hover {
+        text-decoration: underline;
+      }
+      
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 1.8em;
+        }
+        
+        #subtitle {
+          font-size: 1em;
+        }
+        
+        #controls {
+          display: none; /* Hide keyboard controls on mobile */
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="header">
+      <h1>🎮 Ruins of Arkan</h1>
+      <div id="subtitle">Top-down roguelite survival prototype</div>
+    </div>
+    
     <div id="app"></div>
+    
+    <div id="controls">
+      <h3>Controls</h3>
+      <p>
+        <span class="key">W A S D</span> or <span class="key">↑ ← ↓ →</span> Move
+        &nbsp;|&nbsp;
+        <span class="key">P</span> Pause
+        &nbsp;|&nbsp;
+        <span class="key">R</span> Restart
+        &nbsp;|&nbsp;
+        <span class="key">I</span> Inspector
+      </p>
+      <p style="margin-top: 10px; font-size: 0.85em;">
+        Collect <span style="color: #4ecdc4;">blue pickups</span> to heal • Avoid <span style="color: #ff6b6b;">orange enemies</span>
+      </p>
+    </div>
+    
+    <div id="footer">
+      <p>Built with TypeScript, HTML5 Canvas & ECS Architecture | 
+        <a href="https://github.com/koreric75/videogamedev" target="_blank">View on GitHub</a>
+      </p>
+    </div>
+    
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
