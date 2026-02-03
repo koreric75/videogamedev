@@ -8,6 +8,21 @@
 
 **Ruins of Arkan** is a compact top-down roguelite prototype featuring Entity-Component-System (ECS) architecture, smooth physics, and engaging survival gameplay. Collect pickups, avoid enemies, and survive as long as you can!
 
+## 📋 Table of Contents
+
+- [Game Preview](#-game-preview)
+- [Features](#-features)
+- [Quick Start](#-quick-start)
+- [How to Play](#-how-to-play)
+- [Documentation](#-documentation)
+- [Architecture](#️-architecture)
+- [Project Structure](#-project-structure)
+- [Development](#-development)
+- [Testing](#-testing)
+- [Contributing](#-contributing)
+- [Roadmap](#️-roadmap)
+- [License](#-license)
+
 ---
 
 ## 🎥 Game Preview
@@ -127,12 +142,13 @@ On touchscreen devices, virtual controls appear automatically:
 
 | Document | Description |
 |----------|-------------|
-| [Architecture Guide](docs/architecture.md) | Detailed system architecture and design patterns |
-| [API Reference](docs/API.md) | Complete API documentation for all systems |
-| [Gameplay Guide](docs/GAMEPLAY.md) | How to play, strategies, and tips |
-| [Contributing Guide](docs/CONTRIBUTING.md) | How to contribute to the project |
-| [Assets Guide](docs/ASSETS.md) | Working with sprites, audio, and assets |
-| [Roadmap](docs/ROADMAP.md) | Planned features and development timeline |
+| 📖 [Quick Start Guide](docs/QUICKSTART.md) | **Start here!** Get running in 5 minutes |
+| 🏗️ [Architecture Guide](docs/architecture.md) | Detailed system architecture and design patterns |
+| 📘 [API Reference](docs/API.md) | Complete API documentation for all systems |
+| 🎮 [Gameplay Guide](docs/GAMEPLAY.md) | How to play, strategies, and tips |
+| 🤝 [Contributing Guide](docs/CONTRIBUTING.md) | How to contribute to the project |
+| 🎨 [Assets Guide](docs/ASSETS.md) | Working with sprites, audio, and assets |
+| 🗺️ [Roadmap](docs/ROADMAP.md) | Planned features and development timeline |
 
 ---
 
