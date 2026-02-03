@@ -1,0 +1,68 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#1a1a2e"/>
+  
+  <!-- Title -->
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="28" fill="#4ecca3" text-anchor="middle" font-weight="bold">
+    Ruins of Arkan - Game Preview
+  </text>
+  
+  <!-- Game Canvas Area -->
+  <rect x="80" y="80" width="640" height="360" fill="#0f0f1e" stroke="#4ecca3" stroke-width="3" rx="8"/>
+  
+  <!-- Player (Green Circle) -->
+  <circle cx="400" cy="260" r="16" fill="#4ecca3" stroke="#fff" stroke-width="2"/>
+  <text x="400" y="265" font-size="20" fill="#fff" text-anchor="middle">▲</text>
+  
+  <!-- Enemies (Orange Circles) -->
+  <circle cx="250" cy="150" r="16" fill="#ff6b6b" stroke="#000" stroke-width="2"/>
+  <circle cx="550" cy="200" r="16" fill="#ff6b6b" stroke="#000" stroke-width="2"/>
+  <circle cx="300" cy="350" r="16" fill="#ff6b6b" stroke="#000" stroke-width="2"/>
+  
+  <!-- Pickups (Blue Circles) -->
+  <circle cx="500" cy="350" r="12" fill="#4ecdc4" opacity="0.9"/>
+  <line x1="500" y1="338" x2="500" y2="362" stroke="#fff" stroke-width="2"/>
+  <line x1="488" y1="350" x2="512" y2="350" stroke="#fff" stroke-width="2"/>
+  
+  <circle cx="200" cy="250" r="12" fill="#4ecdc4" opacity="0.9"/>
+  <line x1="200" y1="238" x2="200" y2="262" stroke="#fff" stroke-width="2"/>
+  <line x1="188" y1="250" x2="212" y2="250" stroke="#fff" stroke-width="2"/>
+  
+  <!-- Health Bar -->
+  <rect x="100" y="95" width="200" height="20" fill="#333" rx="4"/>
+  <rect x="100" y="95" width="140" height="20" fill="#4ecca3" rx="4"/>
+  <text x="200" y="110" font-family="monospace" font-size="14" fill="#fff" text-anchor="middle">HP: 70/100</text>
+  
+  <!-- Score -->
+  <text x="650" y="110" font-family="monospace" font-size="16" fill="#4ecca3" text-anchor="end">Score: 1250</text>
+  
+  <!-- Legend -->
+  <g transform="translate(100, 480)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="18" fill="#4ecca3" font-weight="bold">Game Elements:</text>
+    
+    <!-- Player -->
+    <circle cx="10" cy="30" r="10" fill="#4ecca3" stroke="#fff" stroke-width="1.5"/>
+    <text x="30" y="35" font-family="Arial, sans-serif" font-size="14" fill="#fff">Player (You!) - Move with WASD/Arrows</text>
+    
+    <!-- Enemy -->
+    <circle cx="10" cy="60" r="10" fill="#ff6b6b" stroke="#000" stroke-width="1.5"/>
+    <text x="30" y="65" font-family="Arial, sans-serif" font-size="14" fill="#fff">Enemy - Deals 10 damage on contact</text>
+    
+    <!-- Pickup -->
+    <circle cx="10" cy="90" r="8" fill="#4ecdc4"/>
+    <text x="30" y="95" font-family="Arial, sans-serif" font-size="14" fill="#fff">Pickup - Restores 20 HP</text>
+  </g>
+  
+  <!-- Features -->
+  <g transform="translate(450, 480)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="18" fill="#4ecca3" font-weight="bold">Features:</text>
+    <text x="0" y="30" font-family="Arial, sans-serif" font-size="14" fill="#fff">✓ ECS Architecture</text>
+    <text x="0" y="55" font-family="Arial, sans-serif" font-size="14" fill="#fff">✓ Physics &amp; Collision</text>
+    <text x="0" y="80" font-family="Arial, sans-serif" font-size="14" fill="#fff">✓ Mobile Touch Controls</text>
+  </g>
+  
+  <!-- Footer -->
+  <text x="400" y="580" font-family="Arial, sans-serif" font-size="12" fill="#666" text-anchor="middle">
+    Built with TypeScript, HTML5 Canvas &amp; ECS Architecture
+  </text>
+</svg>

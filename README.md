@@ -10,18 +10,62 @@
 
 ---
 
+## 🎥 Game Preview
+
+<div align="center">
+  <img src="docs/game-preview.svg" alt="Game Preview" width="700"/>
+</div>
+
+---
+
 ## ✨ Features
 
-- ✅ **ECS Architecture** - Clean, maintainable Entity-Component-System design
-- ✅ **Physics System** - Smooth movement with collision detection
-- ✅ **Multi-Platform Input** - Keyboard, mouse, and touch controls
-- ✅ **Mobile Support** - Virtual joystick for touchscreen devices
-- ✅ **Configuration System** - Centralized, easy-to-modify game settings
-- ✅ **Complete Gameplay** - Player, enemies, pickups, scoring, and health
-- ✅ **Health System** - Visual health bar with damage feedback
-- ✅ **Game States** - Playing, paused, and game over states
-- ✅ **Debug Tools** - Sprite inspector and performance monitoring
-- ✅ **Asset Management** - Automatic loading of sprites and audio
+<table>
+<tr>
+<td width="50%">
+
+### 🎯 Core Gameplay
+- ✅ **ECS Architecture** - Clean, maintainable design
+- ✅ **Physics System** - Smooth collision detection
+- ✅ **Health System** - Visual feedback & balance
+- ✅ **Enemy AI** - Chase behavior with pathfinding
+- ✅ **Pickup System** - Health restoration mechanics
+
+</td>
+<td width="50%">
+
+### 🎮 Controls & Input
+- ✅ **Keyboard Support** - WASD + Arrow keys
+- ✅ **Mouse Support** - Click and drag interactions
+- ✅ **Touch Controls** - Virtual joystick for mobile
+- ✅ **Multi-Platform** - Works on desktop & mobile
+- ✅ **Responsive** - Adapts to screen size
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 🛠️ Developer Tools
+- ✅ **Sprite Inspector** - Real-time entity debugging
+- ✅ **Configuration System** - Easy game balance tuning
+- ✅ **Hot Reload** - Fast development iteration
+- ✅ **TypeScript** - Type-safe development
+- ✅ **Asset Management** - Auto-loading sprites & audio
+
+</td>
+<td width="50%">
+
+### 🎨 Visual & Audio
+- ✅ **Canvas Rendering** - Smooth 60 FPS gameplay
+- ✅ **Custom Sprites** - Support for PNG/SVG/JPEG
+- ✅ **Audio System** - Sound effects ready
+- ✅ **Debug Visuals** - FPS counter, collision boxes
+- ✅ **Modern UI** - Clean, responsive interface
+
+</td>
+</tr>
+</table>
 
 ---
 
@@ -96,16 +140,9 @@ On touchscreen devices, virtual controls appear automatically:
 
 **Ruins of Arkan** uses a clean **Entity-Component-System (ECS)** architecture:
 
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Entities   │ ←→  │ Components  │ ←→  │   Systems   │
-│             │     │             │     │             │
-│ player      │     │ Transform   │     │ Physics     │
-│ enemy       │     │ Physics     │     │ Render      │
-│ pickup      │     │ Sprite      │     │ Input       │
-│             │     │ Collider    │     │ Audio       │
-└─────────────┘     └─────────────┘     └─────────────┘
-```
+<div align="center">
+  <img src="docs/architecture-diagram.svg" alt="Architecture Diagram" width="700"/>
+</div>
 
 ### Core Concepts
 
