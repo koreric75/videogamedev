@@ -147,10 +147,15 @@ Follow the Entity-Component-System pattern:
 
 Example component:
 ```typescript
-export interface Transform {
+export interface Vector2 {
   x: number;
   y: number;
+}
+
+export interface Transform {
+  position: Vector2;
   rotation: number;
+  scale: Vector2;
 }
 ```
 

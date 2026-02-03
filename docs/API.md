@@ -45,11 +45,16 @@ interface Component {
 
 **Transform Component**
 ```typescript
+interface Vector2 {
+  x: number;
+  y: number;
+}
+
 interface Transform extends Component {
   type: 'transform';
-  x: number;          // X position in pixels
-  y: number;          // Y position in pixels
+  position: Vector2;  // Position in pixels
   rotation: number;   // Rotation in radians
+  scale: Vector2;     // Scale factors
 }
 ```
 
@@ -57,9 +62,10 @@ interface Transform extends Component {
 ```typescript
 interface Physics extends Component {
   type: 'physics';
-  velocityX: number;  // X velocity in pixels/second
-  velocityY: number;  // Y velocity in pixels/second
-  mass: number;       // Mass (affects physics calculations)
+  velocity: Vector2;      // Current velocity in pixels/second
+  acceleration: Vector2;  // Current acceleration in pixels/second^2
+  mass: number;           // Mass (affects physics calculations)
+  friction: number;       // Friction coefficient applied to motion
 }
 ```
 
@@ -255,37 +261,41 @@ Example:
 await audioSystem.loadSound('pickup', 'assets/audio/pickup.mp3');
 ```
 
-**`playSound(name: string, volume?: number): void`**
+**`play(name: string): void`**
 
 Play a loaded sound effect.
 
 Parameters:
 - `name` - Sound identifier
-- `volume` - Volume level (0.0 to 1.0), defaults to 1.0
 
 Example:
 ```typescript
-audioSystem.playSound('pickup', 0.7);
+audioManager.play('pickup');
 ```
 
-**`playMusic(name: string, loop?: boolean): void`**
+**`setVolume(volume: number): void`**
 
-Play background music.
-
-Parameters:
-- `name` - Music identifier
-- `loop` - Whether to loop the music, defaults to `true`
-
-**`stopMusic(): void`**
-
-Stop currently playing music.
-
-**`setMasterVolume(volume: number): void`**
-
-Set master volume for all audio.
+Set volume for all audio.
 
 Parameters:
 - `volume` - Volume level (0.0 to 1.0)
+
+Example:
+```typescript
+audioManager.setVolume(0.7);
+```
+
+**`setEnabled(enabled: boolean): void`**
+
+Enable or disable audio playback.
+
+Parameters:
+- `enabled` - Whether audio should be enabled
+
+Example:
+```typescript
+audioManager.setEnabled(false);
+```
 
 ### Asset Manager
 
@@ -492,21 +502,21 @@ function createPlayer(x: number, y: number): Entity {
 
 ## Utilities
 
-### Spawner
+### EntityFactory
 
-Utilities for spawning game entities.
+Static methods for creating game entities. (Note: The actual EntityFactory in the codebase provides these create methods.)
 
-**`spawnPlayer(x: number, y: number): Entity`**
+**`EntityFactory.createPlayer(x: number, y: number): Entity`**
 
-Spawn a player entity at the specified position.
+Create a player entity at the specified position.
 
-**`spawnEnemy(x: number, y: number): Entity`**
+**`EntityFactory.createEnemy(x: number, y: number): Entity`**
 
-Spawn an enemy entity at the specified position.
+Create an enemy entity at the specified position.
 
-**`spawnPickup(x: number, y: number): Entity`**
+**`EntityFactory.createPickup(x: number, y: number): Entity`**
 
-Spawn a pickup entity at the specified position.
+Create a pickup entity at the specified position.
 
 ### Math Utilities
 
@@ -534,16 +544,16 @@ Generate a random number in range [min, max].
 
 ```typescript
 function createPowerUp(x: number, y: number, powerType: string): Entity {
-  const entity = generateEntityId();
+  const entity = new Entity();
   
-  addComponent(entity, {
+  entity.addComponent({
     type: 'transform',
-    x,
-    y,
-    rotation: 0
+    position: { x, y },
+    rotation: 0,
+    scale: { x: 1, y: 1 }
   });
   
-  addComponent(entity, {
+  entity.addComponent({
     type: 'sprite',
     image: null,
     width: config.pickup.size,
@@ -551,7 +561,7 @@ function createPowerUp(x: number, y: number, powerType: string): Entity {
     color: '#ffdd00'
   });
   
-  addComponent(entity, {
+  entity.addComponent({
     type: 'collider',
     width: config.pickup.size,
     height: config.pickup.size,
@@ -578,7 +588,7 @@ class WeaponSystem {
   
   update(deltaTime: number): void {
     for (const entity of this.entities) {
-      const weapon = getComponent(entity, 'weapon');
+      const weapon = entity.getComponent<WeaponComponent>('weapon');
       if (!weapon) continue;
       
       // Update weapon cooldown
@@ -589,12 +599,14 @@ class WeaponSystem {
   }
   
   fire(entity: Entity): void {
-    const weapon = getComponent(entity, 'weapon');
+    const weapon = entity.getComponent<WeaponComponent>('weapon');
     if (!weapon || weapon.cooldown > 0) return;
     
     // Create projectile
-    const transform = getComponent(entity, 'transform');
-    createProjectile(transform.x, transform.y);
+    const transform = entity.getComponent<TransformComponent>('transform');
+    if (transform) {
+      createProjectile(transform.position.x, transform.position.y);
+    }
     
     // Reset cooldown
     weapon.cooldown = weapon.fireRate;

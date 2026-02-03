@@ -180,12 +180,12 @@ Adjust audio in `src/game/config.ts`:
 
 ```typescript
 audio: {
-  masterVolume: 0.7,    // Overall volume (0.0 - 1.0)
-  sfxVolume: 0.8,       // Sound effects volume
-  musicVolume: 0.5,     // Background music volume
-  enabled: true         // Enable/disable all audio
+  volume: 0.7,      // Overall volume (0.0 - 1.0)
+  enabled: true     // Enable/disable all audio
 }
 ```
+
+Note: The current AudioManager implementation supports `volume` and `enabled` settings. More granular controls (like separate `sfxVolume` and `musicVolume`) are planned for future versions.
 
 ## Creating Custom Assets
 
@@ -363,17 +363,13 @@ Large files can cause:
 The project includes helper scripts for asset management:
 
 ```bash
-# Export sprites to different formats
+# Export sprites to different formats (available)
 npm run export:sprites
-
-# Optimize all images
-npm run optimize:images
-
-# Convert audio to MP3
-npm run convert:audio
 ```
 
-These scripts are defined in `scripts/` directory.
+Note: The `optimize:images` and `convert:audio` scripts are not currently implemented. If you need image optimization or audio conversion, you can add these scripts to `package.json` and implement them in the `scripts/` directory.
+
+The `export:sprites` script is currently defined in `scripts/export-sprites.js` and available for use.
 
 ## Contributing Assets
 

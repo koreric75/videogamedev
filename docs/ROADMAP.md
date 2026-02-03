@@ -310,6 +310,6 @@ Have ideas for the roadmap? We'd love to hear them!
 
 ---
 
-**Last Updated**: February 2026  
+**Last Updated**: February 3, 2026  
 **Current Version**: v1.0.0  
 **Next Release**: v1.1.0 (targeting Q2 2026)

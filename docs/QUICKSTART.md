@@ -135,8 +135,8 @@ const player = createEntity();  // Just an ID number
 ```typescript
 {
   type: 'transform',
-  x: 100,
-  y: 100,
+  position: { x: 100, y: 100 },
+  scale: { x: 1, y: 1 },
   rotation: 0
 }
 ```
@@ -160,9 +160,9 @@ class PhysicsSystem {
 ```typescript
 export function spawnPowerUp(x: number, y: number) {
   // Create entity with components
-  const entity = createEntity();
-  addComponent(entity, transformComponent);
-  addComponent(entity, spriteComponent);
+  const entity = new Entity();
+  entity.addComponent(transformComponent);
+  entity.addComponent(spriteComponent);
   return entity;
 }
 ```
