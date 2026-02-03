@@ -10,6 +10,13 @@ A compact top-down roguelite prototype built with TypeScript and HTML5 Canvas, f
 
 Run locally with `npm run dev` or build for production with `npm run build`.
 
+## 📚 Documentation
+
+- **[Quick Start Guide](docs/QUICK_START.md)** - Get started in minutes
+- **[Architecture Documentation](docs/architecture.md)** - Technical deep-dive into the ECS architecture
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Deploy to GitHub Pages, Netlify, Vercel, and more
+- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
+
 ## ✨ Features
 
 ### Core Game Mechanics
