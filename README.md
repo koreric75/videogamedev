@@ -33,6 +33,14 @@
 
 ---
 
+## 🎥 Game Preview
+
+<div align="center">
+  <img src="docs/game-preview.svg" alt="Game Preview" width="700"/>
+</div>
+
+---
+
 ## ✨ Features
 
 <table>
