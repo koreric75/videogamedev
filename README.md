@@ -21,9 +21,11 @@ Run locally with `npm run dev` or build for production with `npm run build`.
 
 ### Core Game Mechanics
 - 🎯 Complete gameplay loop with player, enemies, pickups, and scoring
+- 🚪 **Room-based progression system** with immediate enemy respawning in adjacent rooms
 - 💚 Health system with visual health bar
 - 🎮 Game state management (playing, paused, game over)
 - 📊 Real-time scoring system
+- 🗺️ Multi-room exploration (5 rooms with forward/backward navigation)
 
 ### Technical Features
 - 🏗️ **Entity-Component-System (ECS) architecture** for clean, scalable code
@@ -64,6 +66,8 @@ Open http://localhost:5173 in your browser to start playing!
 - **WASD / Arrow keys**: Move player
 - **P**: Pause/unpause game
 - **R**: Restart after game over
+- **E**: Advance to next room (after clearing current room)
+- **Q**: Return to previous room (after clearing current room)
 - **I**: Open sprite inspector (debugging tool)
 
 #### Mobile / Touch
@@ -74,11 +78,14 @@ Touch controls automatically appear when a touchscreen is detected.
 
 ### 🎯 Gameplay
 
+- **Clear rooms** by defeating all enemies in the current room
+- **Progress through rooms** by pressing E after clearing (5 rooms total)
+- **Return to previous rooms** by pressing Q to collect missed pickups
 - **Collect blue pickups** to heal (+20 HP)
-- **Avoid orange enemies** that chase and deal damage (10 HP per hit)
-- **Survive as long as possible** and maximize your score!
+- **Defeat orange enemies** that chase and deal damage (10 HP per hit)
+- **Survive and explore** all rooms to maximize your score!
 
-The game gets progressively harder as more enemies spawn over time.
+The game features a room-based progression system where enemies spawn immediately in adjacent rooms once you clear the current room.
 
 ## 🏗️ Architecture
 

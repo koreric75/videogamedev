@@ -47,6 +47,10 @@ export interface GameConfig {
     showColliders: boolean;
     enableInspector: boolean;
   };
+  room: {
+    enemiesPerRoom: number;
+    totalRooms: number;
+  };
 }
 
 export const config: GameConfig = {
@@ -92,6 +96,10 @@ export const config: GameConfig = {
     showFPS: false,
     showColliders: false,
     enableInspector: true,
+  },
+  room: {
+    enemiesPerRoom: 3,
+    totalRooms: 5,
   },
 };
 

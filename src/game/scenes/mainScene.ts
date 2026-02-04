@@ -3,7 +3,7 @@
  * Core gameplay scene with player, enemies, and pickups
  */
 
-import { EntityManager, EntityFactory, Entity } from '../core/entity';
+import { EntityManager, EntityFactory, Entity, HealthComponent } from '../core/entity';
 import { PhysicsSystem } from '../core/physics';
 import { RenderSystem } from '../core/render';
 import { InputSystem } from '../core/input';
@@ -28,6 +28,11 @@ export class MainScene {
   private frameCount: number = 0;
   private lastFpsUpdate: number = 0;
   
+  // Room system properties
+  private currentRoom: number = 0;
+  private roomsCleared: Set<number> = new Set();
+  private enemiesSpawnedInRoom: number = 0;
+  
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.entityManager = new EntityManager();
@@ -51,9 +56,8 @@ export class MainScene {
       };
     }
     
-    // Spawn initial enemies
-    this.spawnEnemy();
-    this.spawnEnemy();
+    // Spawn initial enemies for current room
+    this.spawnRoomEnemies();
     
     // Spawn initial pickups
     this.spawnPickup();
@@ -97,13 +101,13 @@ export class MainScene {
     // Update enemy AI
     this.updateEnemies(dt);
     
-    // Spawn enemies and pickups
-    this.enemySpawnTimer += dt;
-    if (this.enemySpawnTimer >= config.enemy.spawnInterval / 1000) {
-      this.spawnEnemy();
-      this.enemySpawnTimer = 0;
-    }
+    // Check if room is cleared
+    this.checkRoomCleared();
     
+    // Check for room transition input
+    this.handleRoomTransition();
+    
+    // Spawn pickups periodically
     this.pickupSpawnTimer += dt;
     if (this.pickupSpawnTimer >= config.pickup.spawnInterval / 1000) {
       this.spawnPickup();
@@ -145,10 +149,7 @@ export class MainScene {
     const playerTransform = this.player.getComponent('transform');
     if (!playerTransform) return;
     
-    const enemies = this.entityManager.getAll().filter(e => 
-      e.id !== 'player' && e.hasComponent('physics') && 
-      e.getComponent('sprite')?.color === config.enemy.color
-    );
+    const enemies = this.getEnemies();
     
     for (const enemy of enemies) {
       const transform = enemy.getComponent('transform');
@@ -253,13 +254,43 @@ export class MainScene {
       fontSize: 20,
     });
     
+    // Render room information
+    RenderSystem.renderText(ctx, `Room: ${this.currentRoom + 1}/${config.room.totalRooms}`, 10, 35, {
+      color: '#ffffff',
+      fontSize: 16,
+    });
+    
+    // Render room status
+    if (this.roomsCleared.has(this.currentRoom)) {
+      RenderSystem.renderText(ctx, 'Room Cleared!', 10, 55, {
+        color: '#00ff00',
+        fontSize: 16,
+      });
+      
+      // Show transition prompts
+      if (this.currentRoom + 1 < config.room.totalRooms) {
+        RenderSystem.renderText(ctx, 'Press E for next room', config.canvas.width / 2, config.canvas.height - 40, {
+          color: '#00ff00',
+          fontSize: 14,
+          align: 'center',
+        });
+      }
+      if (this.currentRoom > 0) {
+        RenderSystem.renderText(ctx, 'Press Q for previous room', config.canvas.width / 2, config.canvas.height - 20, {
+          color: '#00ff00',
+          fontSize: 14,
+          align: 'center',
+        });
+      }
+    }
+    
     // Render health bar
     if (this.player) {
       const health = this.player.getComponent<HealthComponent>('health');
       if (health) {
         RenderSystem.renderHealthBar(
           ctx,
-          10,
+          config.canvas.width - 160,
           config.canvas.height - 20,
           health.current,
           health.max,
@@ -332,12 +363,74 @@ export class MainScene {
     }
   }
   
+  private spawnRoomEnemies(): void {
+    // Spawn enemies for the current room
+    for (let i = 0; i < config.room.enemiesPerRoom; i++) {
+      this.spawnEnemy();
+      this.enemiesSpawnedInRoom++;
+    }
+  }
+  
+  private getEnemies(): Entity[] {
+    return this.entityManager.getAll().filter(e => 
+      e.id !== 'player' && e.hasComponent('physics') && 
+      e.getComponent('sprite')?.color === config.enemy.color
+    );
+  }
+  
+  private checkRoomCleared(): void {
+    // Count remaining enemies
+    const enemies = this.getEnemies();
+    
+    // If all enemies defeated and room not already cleared
+    if (enemies.length === 0 && this.enemiesSpawnedInRoom > 0 && !this.roomsCleared.has(this.currentRoom)) {
+      this.roomsCleared.add(this.currentRoom);
+    }
+  }
+  
+  private handleRoomTransition(): void {
+    // Check for room transition inputs
+    // E key to go to next room
+    if (this.inputSystem.isKeyPressed('e') && this.roomsCleared.has(this.currentRoom)) {
+      const nextRoom = this.currentRoom + 1;
+      if (nextRoom < config.room.totalRooms) {
+        this.transitionToRoom(nextRoom);
+      }
+    }
+    
+    // Q key to go to previous room
+    if (this.inputSystem.isKeyPressed('q') && this.roomsCleared.has(this.currentRoom)) {
+      const prevRoom = this.currentRoom - 1;
+      if (prevRoom >= 0) {
+        this.transitionToRoom(prevRoom);
+      }
+    }
+  }
+  
+  private transitionToRoom(roomNumber: number): void {
+    // Clear current room enemies
+    const enemies = this.getEnemies();
+    enemies.forEach(enemy => this.entityManager.remove(enemy.id));
+    
+    // Update current room
+    this.currentRoom = roomNumber;
+    this.enemiesSpawnedInRoom = 0;
+    
+    // Spawn enemies if room not cleared yet (immediate respawn)
+    if (!this.roomsCleared.has(this.currentRoom)) {
+      this.spawnRoomEnemies();
+    }
+  }
+  
   private restart(): void {
     this.entityManager.clear();
     this.gameState = GameState.PLAYING;
     this.score = 0;
     this.enemySpawnTimer = 0;
     this.pickupSpawnTimer = 0;
+    this.currentRoom = 0;
+    this.roomsCleared.clear();
+    this.enemiesSpawnedInRoom = 0;
     this.inputSystem.clear();
     this.init();
   }
