@@ -149,10 +149,7 @@ export class MainScene {
     const playerTransform = this.player.getComponent('transform');
     if (!playerTransform) return;
     
-    const enemies = this.entityManager.getAll().filter(e => 
-      e.id !== 'player' && e.hasComponent('physics') && 
-      e.getComponent('sprite')?.color === config.enemy.color
-    );
+    const enemies = this.getEnemies();
     
     for (const enemy of enemies) {
       const transform = enemy.getComponent('transform');
@@ -374,34 +371,20 @@ export class MainScene {
     }
   }
   
-  private checkRoomCleared(): void {
-    // Count remaining enemies
-    const enemies = this.entityManager.getAll().filter(e => 
+  private getEnemies(): Entity[] {
+    return this.entityManager.getAll().filter(e => 
       e.id !== 'player' && e.hasComponent('physics') && 
       e.getComponent('sprite')?.color === config.enemy.color
     );
+  }
+  
+  private checkRoomCleared(): void {
+    // Count remaining enemies
+    const enemies = this.getEnemies();
     
     // If all enemies defeated and room not already cleared
     if (enemies.length === 0 && this.enemiesSpawnedInRoom > 0 && !this.roomsCleared.has(this.currentRoom)) {
       this.roomsCleared.add(this.currentRoom);
-      
-      // Immediately spawn enemies in adjacent rooms
-      this.spawnEnemiesInAdjacentRooms();
-    }
-  }
-  
-  private spawnEnemiesInAdjacentRooms(): void {
-    // Spawn enemies in room ahead (if exists)
-    const nextRoom = this.currentRoom + 1;
-    if (nextRoom < config.room.totalRooms && !this.roomsCleared.has(nextRoom)) {
-      // Mark enemies as spawned for next room (but they won't actually spawn until transition)
-      // This enables "immediate respawn" - enemies are ready when player enters
-    }
-    
-    // Spawn enemies in room behind (if exists)
-    const prevRoom = this.currentRoom - 1;
-    if (prevRoom >= 0 && !this.roomsCleared.has(prevRoom)) {
-      // Mark enemies as spawned for previous room
     }
   }
   
@@ -426,17 +409,14 @@ export class MainScene {
   
   private transitionToRoom(roomNumber: number): void {
     // Clear current room enemies
-    const enemies = this.entityManager.getAll().filter(e => 
-      e.id !== 'player' && e.hasComponent('physics') && 
-      e.getComponent('sprite')?.color === config.enemy.color
-    );
+    const enemies = this.getEnemies();
     enemies.forEach(enemy => this.entityManager.remove(enemy.id));
     
     // Update current room
     this.currentRoom = roomNumber;
     this.enemiesSpawnedInRoom = 0;
     
-    // Spawn enemies if room not cleared yet
+    // Spawn enemies if room not cleared yet (immediate respawn)
     if (!this.roomsCleared.has(this.currentRoom)) {
       this.spawnRoomEnemies();
     }
