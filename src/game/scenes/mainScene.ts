@@ -8,11 +8,15 @@ import { PhysicsSystem } from '../core/physics';
 import { RenderSystem } from '../core/render';
 import { InputSystem } from '../core/input';
 import { config } from '../config';
+import audioManager from '../core/audio';
+import { MusicUploader } from '../ui/musicUploader';
 
 export enum GameState {
   PLAYING,
   PAUSED,
   GAME_OVER,
+  VICTORY,
+  AWAITING_MUSIC,
 }
 
 export class MainScene {
@@ -20,7 +24,7 @@ export class MainScene {
   private entityManager: EntityManager;
   private inputSystem: InputSystem;
   private player: Entity | null = null;
-  private gameState: GameState = GameState.PLAYING;
+  private gameState: GameState = GameState.AWAITING_MUSIC;
   private score: number = 0;
   private enemySpawnTimer: number = 0;
   private pickupSpawnTimer: number = 0;
@@ -33,12 +37,52 @@ export class MainScene {
   private roomsCleared: Set<number> = new Set();
   private enemiesSpawnedInRoom: number = 0;
   
+  // Fire realm properties
+  private musicUploader: MusicUploader;
+  private musicDuration: number = 0;
+  private gameTimer: number = 0;
+  private flamesExtinguished: number = 0;
+  private totalFlames: number = 0;
+  private musicFileName: string = '';
+  
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.entityManager = new EntityManager();
     this.inputSystem = new InputSystem(canvas);
     
+    // Create music uploader UI
+    this.musicUploader = new MusicUploader(document.body);
+    this.musicUploader.setOnMusicLoaded((file) => this.handleMusicUpload(file));
+    
     this.init();
+  }
+  
+  private async handleMusicUpload(file: File): Promise<void> {
+    try {
+      this.musicUploader.updateStatus('Loading music...', '#ffaa00');
+      const duration = await audioManager.loadBackgroundMusic(file);
+      this.musicDuration = duration;
+      this.musicFileName = file.name;
+      
+      // Calculate total flames based on duration and room setup
+      this.totalFlames = config.room.totalRooms * config.room.enemiesPerRoom;
+      
+      this.musicUploader.updateStatus(`Ready! Duration: ${Math.floor(duration)}s`, '#00ff00');
+      
+      // Hide uploader after brief delay and start game
+      setTimeout(() => {
+        this.musicUploader.hide();
+        this.startGame();
+      }, 2000);
+    } catch (e) {
+      this.musicUploader.updateStatus('Failed to load music. Try again.', '#ff0000');
+    }
+  }
+  
+  private startGame(): void {
+    this.gameState = GameState.PLAYING;
+    audioManager.playBackgroundMusic();
+    this.gameTimer = 0;
   }
   
   private init(): void {
@@ -64,7 +108,12 @@ export class MainScene {
   }
   
   update(dt: number): void {
-    if (this.gameState === GameState.GAME_OVER) {
+    // Handle awaiting music state
+    if (this.gameState === GameState.AWAITING_MUSIC) {
+      return;
+    }
+    
+    if (this.gameState === GameState.GAME_OVER || this.gameState === GameState.VICTORY) {
       // Check for restart input
       if (this.inputSystem.isKeyPressed('r')) {
         this.restart();
@@ -86,8 +135,32 @@ export class MainScene {
       return;
     }
     
+    // Update game timer
+    this.gameTimer += dt;
+    
+    // Check if time is up
+    if (this.musicDuration > 0 && this.gameTimer >= this.musicDuration) {
+      // Time's up - check if all flames extinguished
+      if (this.flamesExtinguished >= this.totalFlames) {
+        this.gameState = GameState.VICTORY;
+      } else {
+        this.gameState = GameState.GAME_OVER;
+      }
+      audioManager.stopBackgroundMusic();
+      return;
+    }
+    
     // Update player input
     this.updatePlayerInput(dt);
+    
+    // Update music quality based on player health
+    if (this.player) {
+      const health = this.player.getComponent<HealthComponent>('health');
+      if (health) {
+        const healthPercent = health.current / health.max;
+        audioManager.updateMusicQuality(healthPercent);
+      }
+    }
     
     // Update physics
     PhysicsSystem.update(this.entityManager.getAll(), dt);
@@ -119,8 +192,18 @@ export class MainScene {
   }
   
   render(ctx: CanvasRenderingContext2D): void {
-    // Clear canvas
-    RenderSystem.clear(ctx, config.canvas.width, config.canvas.height);
+    // Clear canvas with fire realm theme
+    if (this.gameState === GameState.AWAITING_MUSIC) {
+      RenderSystem.clear(ctx, config.canvas.width, config.canvas.height);
+    } else {
+      // Fire realm background - dark red/orange gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, config.canvas.height);
+      gradient.addColorStop(0, '#2a0a0a');
+      gradient.addColorStop(0.5, '#4a1010');
+      gradient.addColorStop(1, '#6a1a0a');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, config.canvas.width, config.canvas.height);
+    }
     
     // Render all entities
     RenderSystem.render(ctx, this.entityManager.getAll());
@@ -129,7 +212,7 @@ export class MainScene {
     this.renderUI(ctx);
   }
   
-  private updatePlayerInput(dt: number): void {
+  private updatePlayerInput(_dt: number): void {
     if (!this.player) return;
     
     const physics = this.player.getComponent('physics');
@@ -143,7 +226,7 @@ export class MainScene {
     physics.velocity.y = vertical * config.player.speed;
   }
   
-  private updateEnemies(dt: number): void {
+  private updateEnemies(_dt: number): void {
     if (!this.player) return;
     
     const playerTransform = this.player.getComponent('transform');
@@ -179,7 +262,7 @@ export class MainScene {
       if (PhysicsSystem.isColliding(this.player, entity)) {
         const sprite = entity.getComponent('sprite');
         
-        // Enemy collision
+        // Enemy collision (flames in fire realm)
         if (sprite?.color === config.enemy.color) {
           const health = this.player.getComponent<HealthComponent>('health');
           if (health) {
@@ -191,9 +274,13 @@ export class MainScene {
               }
             }
           }
+          // Remove enemy and count as flame extinguished
+          this.entityManager.remove(entity.id);
+          this.flamesExtinguished++;
+          this.score += 20;
         }
         
-        // Pickup collision
+        // Pickup collision (water/grass restoration)
         if (sprite?.color === config.pickup.color) {
           const health = this.player.getComponent<HealthComponent>('health');
           if (health) {
@@ -248,35 +335,96 @@ export class MainScene {
   }
   
   private renderUI(ctx: CanvasRenderingContext2D): void {
+    // Render awaiting music screen
+    if (this.gameState === GameState.AWAITING_MUSIC) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(20, 10, 0, 0.9)';
+      ctx.fillRect(0, 0, config.canvas.width, config.canvas.height);
+      
+      RenderSystem.renderText(ctx, '🔥 ANCIENT FIRE REALM 🔥', config.canvas.width / 2, config.canvas.height / 2 - 80, {
+        color: '#ff6600',
+        fontSize: 36,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, 'Upload a song to begin your quest', config.canvas.width / 2, config.canvas.height / 2 - 20, {
+        color: '#ffffff',
+        fontSize: 18,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, 'Song length = Time to extinguish all flames', config.canvas.width / 2, config.canvas.height / 2 + 10, {
+        color: '#aaaaaa',
+        fontSize: 14,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, 'Music degrades as you weaken, recovers as you heal', config.canvas.width / 2, config.canvas.height / 2 + 35, {
+        color: '#aaaaaa',
+        fontSize: 14,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      ctx.restore();
+      return;
+    }
+    
     // Render score
     RenderSystem.renderText(ctx, `Score: ${this.score}`, 10, 10, {
       color: '#ffffff',
       fontSize: 20,
     });
     
+    // Render timer
+    const timeRemaining = Math.max(0, this.musicDuration - this.gameTimer);
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = Math.floor(timeRemaining % 60);
+    const timeColor = timeRemaining < 30 ? '#ff0000' : timeRemaining < 60 ? '#ffaa00' : '#00ff00';
+    RenderSystem.renderText(ctx, `⏱️ ${minutes}:${seconds.toString().padStart(2, '0')}`, 10, 35, {
+      color: timeColor,
+      fontSize: 18,
+    });
+    
+    // Render fire realm progress
+    RenderSystem.renderText(ctx, `🔥 Flames: ${this.flamesExtinguished}/${this.totalFlames}`, 10, 60, {
+      color: '#ff8800',
+      fontSize: 16,
+    });
+    
+    // Render music info
+    RenderSystem.renderText(ctx, `♫ ${this.musicFileName}`, config.canvas.width / 2, 10, {
+      color: '#cccccc',
+      fontSize: 12,
+      align: 'center',
+    });
+    
     // Render room information
-    RenderSystem.renderText(ctx, `Room: ${this.currentRoom + 1}/${config.room.totalRooms}`, 10, 35, {
+    RenderSystem.renderText(ctx, `Realm: ${this.currentRoom + 1}/${config.room.totalRooms}`, 10, 85, {
       color: '#ffffff',
       fontSize: 16,
     });
     
     // Render room status
     if (this.roomsCleared.has(this.currentRoom)) {
-      RenderSystem.renderText(ctx, 'Room Cleared!', 10, 55, {
+      RenderSystem.renderText(ctx, 'Realm Cleared!', 10, 105, {
         color: '#00ff00',
         fontSize: 16,
       });
       
       // Show transition prompts
       if (this.currentRoom + 1 < config.room.totalRooms) {
-        RenderSystem.renderText(ctx, 'Press E for next room', config.canvas.width / 2, config.canvas.height - 40, {
+        RenderSystem.renderText(ctx, 'Press E for next realm', config.canvas.width / 2, config.canvas.height - 40, {
           color: '#00ff00',
           fontSize: 14,
           align: 'center',
         });
       }
       if (this.currentRoom > 0) {
-        RenderSystem.renderText(ctx, 'Press Q for previous room', config.canvas.width / 2, config.canvas.height - 20, {
+        RenderSystem.renderText(ctx, 'Press Q for previous realm', config.canvas.width / 2, config.canvas.height - 20, {
           color: '#00ff00',
           fontSize: 14,
           align: 'center',
@@ -305,28 +453,86 @@ export class MainScene {
       RenderSystem.renderFPS(ctx, this.fps);
     }
     
+    // Render victory screen
+    if (this.gameState === GameState.VICTORY) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 50, 0, 0.8)';
+      ctx.fillRect(0, 0, config.canvas.width, config.canvas.height);
+      
+      RenderSystem.renderText(ctx, '🌿 VICTORY! 🌿', config.canvas.width / 2, config.canvas.height / 2 - 60, {
+        color: '#00ff00',
+        fontSize: 48,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, 'The Fire Realm is Restored!', config.canvas.width / 2, config.canvas.height / 2 - 10, {
+        color: '#88ff88',
+        fontSize: 24,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, `Flames Extinguished: ${this.flamesExtinguished}/${this.totalFlames}`, config.canvas.width / 2, config.canvas.height / 2 + 20, {
+        color: '#ffffff',
+        fontSize: 20,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, `Final Score: ${this.score}`, config.canvas.width / 2, config.canvas.height / 2 + 50, {
+        color: '#ffffff',
+        fontSize: 20,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, 'Press R to Restart', config.canvas.width / 2, config.canvas.height / 2 + 90, {
+        color: '#00ff00',
+        fontSize: 18,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      ctx.restore();
+    }
+    
     // Render game over screen
     if (this.gameState === GameState.GAME_OVER) {
       ctx.save();
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillStyle = 'rgba(50, 0, 0, 0.8)';
       ctx.fillRect(0, 0, config.canvas.width, config.canvas.height);
       
-      RenderSystem.renderText(ctx, 'GAME OVER', config.canvas.width / 2, config.canvas.height / 2 - 40, {
+      RenderSystem.renderText(ctx, '🔥 TIME\'S UP! 🔥', config.canvas.width / 2, config.canvas.height / 2 - 60, {
         color: '#ff0000',
         fontSize: 48,
         align: 'center',
         baseline: 'middle',
       });
       
-      RenderSystem.renderText(ctx, `Final Score: ${this.score}`, config.canvas.width / 2, config.canvas.height / 2 + 20, {
-        color: '#ffffff',
+      RenderSystem.renderText(ctx, 'The Fire Realm Consumes All', config.canvas.width / 2, config.canvas.height / 2 - 10, {
+        color: '#ff8888',
         fontSize: 24,
         align: 'center',
         baseline: 'middle',
       });
       
-      RenderSystem.renderText(ctx, 'Press R to Restart', config.canvas.width / 2, config.canvas.height / 2 + 60, {
-        color: '#00ff00',
+      RenderSystem.renderText(ctx, `Flames Extinguished: ${this.flamesExtinguished}/${this.totalFlames}`, config.canvas.width / 2, config.canvas.height / 2 + 20, {
+        color: '#ffffff',
+        fontSize: 20,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, `Final Score: ${this.score}`, config.canvas.width / 2, config.canvas.height / 2 + 50, {
+        color: '#ffffff',
+        fontSize: 20,
+        align: 'center',
+        baseline: 'middle',
+      });
+      
+      RenderSystem.renderText(ctx, 'Press R to Restart', config.canvas.width / 2, config.canvas.height / 2 + 90, {
+        color: '#ff0000',
         fontSize: 18,
         align: 'center',
         baseline: 'middle',
@@ -424,14 +630,26 @@ export class MainScene {
   
   private restart(): void {
     this.entityManager.clear();
-    this.gameState = GameState.PLAYING;
+    this.gameState = GameState.AWAITING_MUSIC;
     this.score = 0;
     this.enemySpawnTimer = 0;
     this.pickupSpawnTimer = 0;
     this.currentRoom = 0;
     this.roomsCleared.clear();
     this.enemiesSpawnedInRoom = 0;
+    this.gameTimer = 0;
+    this.flamesExtinguished = 0;
+    this.musicDuration = 0;
+    this.musicFileName = '';
     this.inputSystem.clear();
+    
+    // Stop any playing music
+    audioManager.stopBackgroundMusic();
+    
+    // Show music uploader again
+    this.musicUploader.show();
+    this.musicUploader.updateStatus('No music selected', '#aaaaaa');
+    
     this.init();
   }
 }

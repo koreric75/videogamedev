@@ -20,12 +20,16 @@ Run locally with `npm run dev` or build for production with `npm run build`.
 ## ✨ Features
 
 ### Core Game Mechanics
+- 🔥 **Ancient Fire Realm Challenge** - Navigate through a fire realm with music-based time limits
+- 🎵 **Custom Music Upload** - Upload your own song to set the challenge duration
+- 🎼 **Dynamic Audio Degradation** - Music quality degrades/recovers with player health (8-bit NES effect)
 - 🎯 Complete gameplay loop with player, enemies, pickups, and scoring
 - 🚪 **Room-based progression system** with immediate enemy respawning in adjacent rooms
 - 💚 Health system with visual health bar
-- 🎮 Game state management (playing, paused, game over)
+- 🎮 Game state management (playing, paused, game over, victory)
 - 📊 Real-time scoring system
-- 🗺️ Multi-room exploration (5 rooms with forward/backward navigation)
+- 🗺️ Multi-room exploration (5 realms with forward/backward navigation)
+- ⏱️ **Timer-based victory conditions** linked to song duration
 
 ### Technical Features
 - 🏗️ **Entity-Component-System (ECS) architecture** for clean, scalable code
@@ -66,8 +70,8 @@ Open http://localhost:5173 in your browser to start playing!
 - **WASD / Arrow keys**: Move player
 - **P**: Pause/unpause game
 - **R**: Restart after game over
-- **E**: Advance to next room (after clearing current room)
-- **Q**: Return to previous room (after clearing current room)
+- **E**: Advance to next realm (after clearing current realm)
+- **Q**: Return to previous realm (after clearing current realm)
 - **I**: Open sprite inspector (debugging tool)
 
 #### Mobile / Touch
@@ -76,16 +80,27 @@ Open http://localhost:5173 in your browser to start playing!
 
 Touch controls automatically appear when a touchscreen is detected.
 
-### 🎯 Gameplay
+### 🎯 Gameplay - Ancient Fire Realm Challenge
 
-- **Clear rooms** by defeating all enemies in the current room
-- **Progress through rooms** by pressing E after clearing (5 rooms total)
-- **Return to previous rooms** by pressing Q to collect missed pickups
-- **Collect blue pickups** to heal (+20 HP)
-- **Defeat orange enemies** that chase and deal damage (10 HP per hit)
-- **Survive and explore** all rooms to maximize your score!
+#### Getting Started
+1. **Upload a song** using the "Upload Music for Fire Realm" button
+2. Song duration = Time limit to complete the challenge
+3. Music begins playing once loaded
 
-The game features a room-based progression system where enemies spawn immediately in adjacent rooms once you clear the current room.
+#### Objectives
+- **Extinguish all flames** (orange-red enemies) across all 5 realms before time runs out
+- **Collect water pickups** (cyan) to heal (+20 HP) and restore music quality
+- **Survive the timer** - When time expires, you must have extinguished all flames to win
+
+#### Game Mechanics
+- **Music Degradation**: As your health decreases, the music quality degrades to 8-bit NES-style sound
+- **Music Recovery**: Healing restores both health and music fidelity
+- **Flame Combat**: Touching flames damages you (-10 HP) but extinguishes them
+- **Realm Progression**: Press E to advance, Q to return (after clearing each realm)
+- **Victory**: Extinguish all flames within the song duration
+- **Defeat**: Time expires with flames remaining
+
+The game features a realm-based progression system where enemies spawn immediately in adjacent realms once you clear the current realm.
 
 ## 🏗️ Architecture
 
