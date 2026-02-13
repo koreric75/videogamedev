@@ -57,25 +57,25 @@ export const config: GameConfig = {
   canvas: {
     width: 640,
     height: 360,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: '#2a0a0a', // Dark fire realm background
   },
   player: {
     speed: 200, // pixels per second
     maxHealth: 100,
     size: 32,
-    color: '#4ecca3',
+    color: '#4ecca3', // Hero color (teal/water theme)
   },
   enemy: {
     speed: 100,
     damage: 10,
     size: 32,
-    color: '#ff6b6b',
+    color: '#ff4500', // Flame color (orange-red)
     spawnInterval: 3000, // ms
   },
   pickup: {
     healAmount: 20,
     size: 24,
-    color: '#4ecdc4',
+    color: '#4ecdc4', // Water/healing color (cyan)
     spawnInterval: 5000, // ms
   },
   physics: {
