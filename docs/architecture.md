@@ -1,7 +1,7 @@
 # 🏗️ BlueFalconInk LLC — videogamedev Architecture
 
 > **Created with [Architect AI Pro](https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/)** — the flagship architecture tool by **BlueFalconInk LLC**
-> Auto-generated on 2026-02-20 08:24 UTC | [GitHub Action source](https://github.com/koreric75/ArchitectAIPro_GHActions)
+> Auto-generated on 2026-02-20 08:29 UTC | [GitHub Action source](https://github.com/koreric75/ArchitectAIPro_GHActions)
 
 ![BlueFalconInk LLC](https://img.shields.io/badge/BlueFalconInk%20LLC-Standard-1E40AF)
 ![Architect AI Pro](https://img.shields.io/badge/Created%20with-Architect%20AI%20Pro-3B82F6)
@@ -12,51 +12,63 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 graph TD
     subgraph "BlueFalconInk LLC — videogamedev Architecture"
-        User[End User]
+        subgraph "External"
+            User[End User]
+            Dev[Developer]
+        end
+
+        subgraph "Deployment & Hosting"
+            style Deployment_Hosting fill:#1E3A5F,color:#BFDBFE
+            GHA[GitHub Actions CI/CD]
+            Vite[Vite Build Tool]
+            GHPages[GitHub Pages Hosting]
+            CDN[GitHub Pages CDN/Edge]
+        end
 
         subgraph "Security"
-            HTTPS[HTTPS / TLS]
+            style Security fill:#1E40AF,color:#BFDBFE
+            GHPSecurity[GitHub Pages Security Features]
         end
 
-        subgraph "Static Hosting"
-            GH_Pages[GitHub Pages]
-        end
-
-        subgraph "Client Application"
-            style Client Application fill:#1E3A5F,color:#BFDBFE
+        subgraph "Application"
+            style Application fill:#1E3A5F,color:#BFDBFE
             Browser[Web Browser]
-            GameEngine[Game Engine - main.ts]
-            CoreSystems[Core Game Systems - ECS]
-            UISystems[UI Components]
-            MusicUploader[Music Uploader UI]
+            GameApp[Client-side Game - TS/HTML5 Canvas]
+            GameEngine[Game Engine]
+            GameUI[Game UI - Joystick, Music Uploader]
+            AssetLoader[Asset Loader]
+            WebAudioAPI[Web Audio API]
+            HTMLCanvas[HTML5 Canvas Renderer]
         end
 
         subgraph "Data"
             style Data fill:#0F172A,color:#BFDBFE
-            Assets[Local Game Assets]
-            Sprites[Sprites - SVG/PNG]
-            AudioFiles[Audio - MP3/WAV]
-            LocalAudio[User Local Audio Files]
+            LocalAssets[Game Assets - Sprites, Audio]
+            UserMusic[User Local Music Files]
         end
 
-        User --> Browser: Accesses URL
-        Browser --> HTTPS: Secure Request
-        HTTPS --> GH_Pages: Content Delivery
-        GH_Pages --> Browser: Serves HTML, JS, CSS, Assets
-        Browser --> GameEngine: Initializes & Runs
-        GameEngine --> CoreSystems: Manages Game Loop
-        GameEngine --> UISystems: Integrates UI
-        CoreSystems --> Assets: Loads & Uses
-        Assets --> Sprites: Provides Images
-        Assets --> AudioFiles: Provides Sounds
-        UISystems --> MusicUploader: Interacts with
-        MusicUploader --> LocalAudio: Uploads (Client-side)
-        LocalAudio --> CoreSystems: Provides Music Data
-        User --> UISystems: Input (Keyboard, Mouse, Touch)
+        %% Data Flows
+        Dev --> GHA[Triggers Build/Deploy]
+        GHA --> Vite[Builds Static Assets]
+        Vite --> GHPages[Deploys 'dist' folder]
+        GHPages --> CDN[Serves Static Content]
+        User --> CDN[Accesses Game URL]
+        CDN --> Browser[Delivers Game Files]
+        Browser --> GameApp[Loads Game]
+        GameApp --> GameEngine[Initializes]
+        GameEngine --> AssetLoader[Loads Default Assets]
+        AssetLoader --> LocalAssets[Fetches Sprites/Audio]
+        GameEngine --> GameUI[Initializes UI]
+        GameUI --> UserMusic[User Uploads Music]
+        UserMusic --> WebAudioAPI[Processes Music File]
+        GameEngine --> WebAudioAPI[Manages Audio Playback/Effects]
+        GameEngine --> HTMLCanvas[Renders Game State]
+        User -.-> GameUI[Interacts via UI/Input]
+        CDN --> GHPSecurity[Protected by]
+
     end
 
     FOOTER[🏗️ Created with Architect AI Pro | BlueFalconInk LLC]
-    style Security fill:#1E40AF,color:#BFDBFE
     style FOOTER fill:#1E40AF,color:#BFDBFE,stroke:#3B82F6
 ```
 
