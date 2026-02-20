@@ -2,40 +2,65 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 graph TD
     subgraph "BlueFalconInk LLC — videogamedev Architecture"
+        User[End User]
+
         subgraph "Security"
-            User[End User] --> CloudCDN[Cloud CDN]
             style Security fill:#1E40AF,color:#BFDBFE
+            WAF[Web Application Firewall]
+            HTTPS[HTTPS/TLS Encryption]
         end
 
         subgraph "Application"
-            CloudCDN --> GitHubPages[GitHub Pages] : "Serve Static Assets"
-            GitHubPages --> Browser[User Browser] : "Delivers index.html, JS, CSS"
-            Browser --> GameClient[TypeScript Game Client] : "Runs Game Logic"
-            GameClient --> HTML5Canvas[HTML5 Canvas Renderer] : "Renders Game State"
-            GameClient --> GameEngine[Game Engine - ECS] : "Manages Game Loop"
-            GameEngine --> UIComponents[UI: Joystick, Music Uploader, Inspector] : "Interacts with UI"
             style Application fill:#1E3A5F,color:#BFDBFE
+            FrontendApp[Client-Side Game - Vite, TS, HTML5 Canvas]
+            GameEngine[Game Engine - ECS]
+            GameCore[Core Systems: Physics, Render, Entity Mgmt]
+            InputSystem[Input Handling - Keyboard, Mouse, Touch]
+            AssetLoader[Asset Loader]
+            AudioManager[Audio Manager - Web Audio API]
+
+            subgraph "Game UI"
+                MusicUploader[Music Uploader]
+                VirtualJoystick[Virtual Joystick & Buttons]
+                SpriteInspector[Sprite Inspector - Debug]
+            end
         end
 
         subgraph "Data"
-            GameClient --> StaticAssets[Static Assets - Sprites, Audio] : "Loads Game Resources"
-            UIComponents --> StaticAssets : "Uploads Local Music"
             style Data fill:#0F172A,color:#BFDBFE
+            LocalAssets[Local Game Assets - Sprites, Audio]
+            UserMusic[User-Uploaded Music Files - Client-side]
         end
 
-        subgraph "Development & CI/CD"
-            GitHubActions[GitHub Actions] --> NodeJSEnv[Node.js Environment] : "Executes Workflows"
-            NodeJSEnv --> Vite[Vite Bundler] : "Builds Frontend"
-            NodeJSEnv --> Jest[Jest Testing Framework] : "Runs Unit Tests"
-            NodeJSEnv --> ESLint[ESLint Linter] : "Lints Code"
-            NodeJSEnv --> SharpLib[Sharp Image Library] : "Processes Sprites"
-            GitHubActions --> ArchitectAIPro[Architect AI Pro] : "Triggers Diagram Generation"
-            ArchitectAIPro --> ForemanAI[Foreman AI Audit] : "Submits for Compliance Audit"
-            ArchitectAIPro --> MermaidCLI[Mermaid CLI] : "Renders Diagram PNG"
-            ArchitectAIPro --> GitHubActions : "Updates docs/architecture.md"
-            GitHubActions --> GitHubPages : "Deploys Build Artifacts"
+        subgraph "Deployment & Hosting"
+            GitHubActions[GitHub Actions CI/CD]
+            GitHubPages[GitHub Pages Static Hosting]
+            GitHubPagesCDN[GitHub Pages CDN]
         end
-    end
+
+        User -- "Accesses" --> WAF
+        WAF -- "Protected Traffic" --> GitHubPagesCDN
+        GitHubPagesCDN -- "Serves Static Content" --> FrontendApp
+        GitHubPagesCDN --- HTTPS
+
+        GitHubActions -- "Deploys 'dist' artifacts" --> GitHubPages
+
+        FrontendApp -- "Initializes" --> GameEngine
+        GameEngine -- "Manages" --> GameCore
+        GameCore -- "Processes" --> InputSystem
+        InputSystem -- "Provides Input" --> GameEngine
+        GameEngine -- "Loads" --> AssetLoader
+        AssetLoader -- "Fetches" --> LocalAssets
+        GameEngine -- "Manages" --> AudioManager
+        AudioManager -- "Loads/Plays" --> LocalAssets
+        MusicUploader -- "Uploads File" --> UserMusic
+        UserMusic -- "Provides Audio Data" --> AudioManager
+        GameEngine -- "Integrates" --> MusicUploader
+        GameEngine -- "Integrates" --> VirtualJoystick
+        VirtualJoystick -- "Generates Touch Input" --> InputSystem
+        GameEngine -- "Integrates" --> SpriteInspector
+        SpriteInspector -- "Displays Debug Info" --> FrontendApp
 
     FOOTER[🏗️ Created with Architect AI Pro | BlueFalconInk LLC]
     style FOOTER fill:#1E40AF,color:#BFDBFE,stroke:#3B82F6
+    end
