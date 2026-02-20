@@ -2,77 +2,99 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 graph TD
     subgraph "BlueFalconInk LLC — videogamedev Architecture"
+        style "BlueFalconInk LLC — videogamedev Architecture" fill:#1E3A5F,color:#BFDBFE
+
+        User["👤 User"]
+
         subgraph Security
             style Security fill:#1E40AF,color:#BFDBFE
-            PublicInternet["Public Internet"] -- HTTP/S Traffic --> AWS_WAF["AWS WAF"]
-            AWS_WAF --> AWS_ALB["AWS Application Load Balancer"]
+            WAF["AWS WAF"]
+            CDN["AWS CloudFront (CDN)"]
         end
 
-        subgraph "Client-Side Application"
-            style Client_Side_Application fill:#1E3A5F,color:#BFDBFE
-            AWS_ALB --> CDN["AWS CloudFront (CDN)"] : Serves Static Assets
-            CDN --> Browser["Web Browser"] : Delivers Game (index.html)
-
-            subgraph "Game Engine (ECS)"
-                style Game_Engine_ECS fill:#1E3A5F,color:#BFDBFE
-                GameEngine["GameEngine (main.ts)"]
-                ECS_Core["ECS Core (Entity, Physics, Render, Input)"]
-                AssetManager["Asset Manager (assets.ts)"]
-                AudioManager["Audio Manager (audio.ts)"]
-                GameConfig["Game Configuration (config.ts)"]
-                GameScenes["Game Scenes (mainScene.ts)"]
-                SpriteSpawner["Sprite Spawner (spawn.ts)"]
-            end
-
-            subgraph "User Interface"
-                style User_Interface fill:#1E3A5F,color:#BFDBFE
-                VirtualJoystick["Virtual Joystick (joystick.ts)"]
-                MusicUploader["Music Uploader (musicUploader.ts)"]
-                SpriteInspector["Sprite Inspector (spriteInspector.ts)"]
-            end
-
-            Browser <--> GameEngine : Initializes & Runs
-            GameEngine <--> ECS_Core : Game Loop & Logic
-            ECS_Core --> AssetManager : Requests Assets
-            ECS_Core --> AudioManager : Manages Audio
-            ECS_Core --> GameConfig : Reads Settings
-            ECS_Core --> SpriteSpawner : Spawns Entities
-
-            Browser <--> VirtualJoystick : Mobile Input
-            Browser <--> MusicUploader : User Music Upload
-            MusicUploader --> AudioManager : Provides Music File
-            Browser <--> SpriteInspector : Debug Interaction
+        subgraph Frontend
+            Browser["🌐 Web Browser"]
+            GameEngine["GameEngine (main.ts, engine.ts)"]
+            VirtualJoystick["VirtualJoystick (UI)"]
+            ActionButton["ActionButton (UI)"]
+            MusicUploader["MusicUploader (UI)"]
+            SpriteInspector["SpriteInspector (Debug UI)"]
         end
 
-        subgraph "Assets"
-            style Assets fill:#0F172A,color:#BFDBFE
-            LocalSprites["Local Sprites (assets/sprites)"]
-            LocalAudio["Local Audio (assets/audio)"]
+        subgraph "Application (Game Core)"
+            MainScene["MainScene (Game Logic)"]
+            ECS["ECS (Entities, Components, Systems)"]
+            InputSystem["InputSystem (Keyboard, Mouse, Touch)"]
+            PhysicsSystem["PhysicsSystem (core/physics.ts)"]
+            AssetManager["AssetManager (core/assets.ts)"]
+            AudioManager["AudioManager (core/audio.ts)"]
+            SpriteSpawner["SpriteSpawner (game/spawn.ts)"]
+            GameConfig["Game Configuration (config.ts)"]
         end
 
-        subgraph "Developer & CI/CD Tools"
-            style Developer_CICD_Tools fill:#1E3A5F,color:#BFDBFE
-            Developer["Developer"]
-            Vite["Vite Dev Server/Bundler"]
-            ESLint["ESLint (Code Quality)"]
-            Jest["Jest (Unit Tests)"]
-            SharpJS["Sharp.js (Sprite Export)"]
-            GHActions["GitHub Actions Workflow"]
-            ArchitectAIProScripts["Architect AI Pro Scripts"]
-
-            Developer --> Vite : Develops/Builds
-            Developer --> ESLint : Lints Code
-            Developer --> Jest : Runs Tests
-            Developer --> SharpJS : Exports Sprites
-            GHActions --> Vite : Builds & Deploys
-            GHActions --> ESLint : Runs Lint
-            GHActions --> Jest : Runs Tests
-            GHActions --> ArchitectAIProScripts : Generates/Audits Diagram
-            ArchitectAIProScripts --> GHActions : Provides Diagram/Report
+        subgraph "Data & Assets"
+            style "Data & Assets" fill:#0F172A,color:#BFDBFE
+            StaticSprites["Static Sprites (assets/sprites)"]
+            StaticAudio["Static Audio (assets/audio)"]
+            LocalFiles["📁 User Local Audio Files"]
         end
 
-        AssetManager --> LocalSprites : Loads SVG/PNG
-        AssetManager --> LocalAudio : Loads MP3/WAV
+        subgraph "Development & Automation"
+            BuildTool["Vite (Build & Dev Server)"]
+            SpriteExporter["Sprite Export Script (scripts/export-sprites.js)"]
+            GitHubActions["GitHub Actions (CI/CD)"]
+            ForemanAudit["Foreman Audit Script"]
+            DiagramGenerator["Diagram Generator Script"]
+            ProductionReadiness["Production Readiness Script"]
+            StaticHosting["Static Hosting (GitHub Pages)"]
+        end
+
+        User --> Browser: Access Game
+        Browser --> WAF: HTTP/S Request
+        WAF --> CDN: Filtered Traffic
+        CDN --> StaticHosting: Serve Static Files
+        StaticHosting --> Browser: HTML, JS, CSS, Assets
+
+        Browser -- Renders --> GameEngine
+        GameEngine -- Initializes --> MainScene
+        GameEngine -- Manages --> ECS
+        GameEngine -- Loads --> AssetManager
+        GameEngine -- Loads --> AudioManager
+        GameEngine -- Handles --> InputSystem
+        GameEngine -- Initializes --> VirtualJoystick
+        GameEngine -- Initializes --> ActionButton
+        GameEngine -- Initializes --> MusicUploader
+        GameEngine -- Initializes --> SpriteInspector
+
+        InputSystem --> MainScene: Player Input
+        VirtualJoystick --> InputSystem: Mobile Input
+        ActionButton --> InputSystem: Mobile Action
+        MusicUploader --> LocalFiles: Select Audio
+        LocalFiles --> AudioManager: Upload Music
+
+        AssetManager --> StaticSprites: Load Sprites
+        AudioManager --> StaticAudio: Load SFX
+
+        MainScene -- Uses --> ECS
+        ECS -- Uses --> PhysicsSystem
+        ECS -- Uses --> GameConfig
+        PhysicsSystem --> ECS: Update Entity Physics
+        SpriteSpawner --> ECS: Create Game Objects
+        GameEngine -- Uses --> SpriteSpawner
+
+        MainScene -- Renders --> Browser: Canvas Output
+
+        BuildTool --> GameEngine: Bundles Code
+        BuildTool --> StaticHosting: Deploys `dist/`
+        SpriteExporter --> StaticSprites: Process SVGs to PNGs
+
+        GitHubActions --> BuildTool: Trigger Build
+        GitHubActions --> SpriteExporter: Trigger Export
+        GitHubActions --> StaticHosting: Deploy
+        GitHubActions --> DiagramGenerator: Generate Diagram
+        DiagramGenerator --> ForemanAudit: Audit Diagram
+        ForemanAudit --> DiagramGenerator: Remediation Feedback
+        GitHubActions --> ProductionReadiness: Check Readiness
     end
 
     FOOTER["🏗️ Created with Architect AI Pro | BlueFalconInk LLC"]
