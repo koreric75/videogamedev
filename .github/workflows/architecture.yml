@@ -1,18 +1,18 @@
 # ──────────────────────────────────────────────────────────────────────
-# 🏗️ Architecture Diagram Generator — Caller Workflow
+# Architecture Diagram Generator - Self-Contained Workflow
 #
-# Powered by Architect AI Pro — BlueFalconInk LLC
+# Powered by Architect AI Pro - BlueFalconInk LLC
 # https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 #
 # Required secrets:
-#   GEMINI_API_KEY — Set in repo Settings → Secrets → Actions
+#   GEMINI_API_KEY - Set in repo Settings > Secrets > Actions
 # ──────────────────────────────────────────────────────────────────────
 
-name: "🏗️ Architecture Diagram"
+name: "Architecture Diagram"
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
     paths:
       - "src/**"
       - "server/**"
@@ -26,15 +26,175 @@ on:
       - "docker-compose*.yml"
       - "terraform/**"
   pull_request:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  architecture:
-    uses: koreric75/ArchitectAIPro_GHActions/.github/workflows/arch-sync.yml@main
-    with:
-      config_path: "ARCHITECT_CONFIG.json"
-      output_path: "docs/architecture.md"
-      scan_dir: "."
-    secrets:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+  generate-diagram:
+    name: "Generate Architecture Diagram"
+    runs-on: ubuntu-latest
+
+    env:
+      CONFIG_PATH: "ARCHITECT_CONFIG.json"
+      OUTPUT_PATH: "docs/architecture.md"
+      SCAN_DIR: "."
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Fetch Architect AI Pro Scripts
+        run: |
+          SCRIPT_DIR=".github/scripts"
+          GH_RAW="https://raw.githubusercontent.com/koreric75/ArchitectAIPro_GHActions/main"
+
+          mkdir -p "$SCRIPT_DIR"
+
+          for script in generate_diagram.py foreman_audit.py safety_check.py production_readiness.py; do
+            echo "Downloading $script..."
+            curl -sL "$GH_RAW/.github/scripts/$script" -o "$SCRIPT_DIR/$script" || true
+          done
+
+          if [ ! -f "$CONFIG_PATH" ]; then
+            echo "Downloading default ARCHITECT_CONFIG.json..."
+            curl -sL "$GH_RAW/ARCHITECT_CONFIG.json" -o "$CONFIG_PATH"
+          fi
+
+      - name: "Generate Diagram via Gemini API"
+        id: generate
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python .github/scripts/generate_diagram.py \
+            --config "$CONFIG_PATH" \
+            --output "$OUTPUT_PATH" \
+            --scan-dir "$SCAN_DIR" \
+            --repo-name "${{ github.event.repository.name }}"
+
+          if grep -q '```mermaid' "$OUTPUT_PATH" 2>/dev/null; then
+            echo "Valid Mermaid diagram generated"
+          else
+            echo "Output missing Mermaid syntax"
+            exit 1
+          fi
+
+      - name: "Foreman Compliance Audit"
+        id: audit
+        run: |
+          set +e
+          python .github/scripts/foreman_audit.py \
+            --file "$OUTPUT_PATH" \
+            --config "$CONFIG_PATH" \
+            2>&1 | tee foreman_report.txt
+          AUDIT_EXIT=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$AUDIT_EXIT" -eq 0 ]; then
+            echo "audit_passed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "audit_passed=false" >> "$GITHUB_OUTPUT"
+            echo "Foreman found violations - attempting remediation..."
+          fi
+
+      - name: "Auto-Remediate Violations"
+        if: steps.audit.outputs.audit_passed == 'false'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          echo "Calling Gemini for remediation..."
+          python .github/scripts/generate_diagram.py \
+            --config "$CONFIG_PATH" \
+            --output "$OUTPUT_PATH" \
+            --scan-dir "$SCAN_DIR" \
+            --repo-name "${{ github.event.repository.name }}" \
+            --remediate foreman_report.txt
+
+          echo "Re-running Foreman audit..."
+          python .github/scripts/foreman_audit.py \
+            --file "$OUTPUT_PATH" \
+            --config "$CONFIG_PATH" || echo "Some violations remain after remediation"
+
+      - name: "Commit Updated Blueprints"
+        if: github.event_name != 'pull_request'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-update architecture diagram via Architect AI Pro [skip ci]"
+          file_pattern: "docs/*.md docs/*.mermaid"
+
+      - name: "PR Diagram Preview"
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const diagram = fs.readFileSync(process.env.OUTPUT_PATH, 'utf8');
+            const body = [
+              '## Architecture Diagram Preview',
+              '',
+              '> Auto-generated by **Architect AI Pro** for **BlueFalconInk LLC**',
+              '',
+              diagram,
+              '',
+              '---',
+              '_Merge to commit this diagram to `docs/architecture.md`._'
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Architecture Diagram Preview')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                comment_id: existing.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            }
+        env:
+          OUTPUT_PATH: ${{ env.OUTPUT_PATH }}
+
+      - name: "Upload Diagram Artifact"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: architecture-diagram
+          path: |
+            ${{ env.OUTPUT_PATH }}
+            docs/*.mermaid
+          retention-days: 30
+
+      - name: "Final Status"
+        if: always()
+        run: |
+          echo "=================================================="
+          echo "  Architect AI Pro - BlueFalconInk LLC"
+          echo "  Diagram: ${{ env.OUTPUT_PATH }}"
+          echo "  Audit:   ${{ steps.audit.outputs.audit_passed }}"
+          echo "=================================================="
