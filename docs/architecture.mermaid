@@ -2,60 +2,39 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 graph TD
     subgraph "BlueFalconInk LLC — videogamedev Architecture"
-        subgraph "External"
-            User[End User]
-            Dev[Developer]
-        end
-
-        subgraph "Deployment & Hosting"
-            style Deployment_Hosting fill:#1E3A5F,color:#BFDBFE
-            GHA[GitHub Actions CI/CD]
-            Vite[Vite Build Tool]
-            GHPages[GitHub Pages Hosting]
-            CDN[GitHub Pages CDN/Edge]
-        end
-
         subgraph "Security"
+            User[End User] --> CloudCDN[Cloud CDN]
             style Security fill:#1E40AF,color:#BFDBFE
-            GHPSecurity[GitHub Pages Security Features]
         end
 
         subgraph "Application"
+            CloudCDN --> GitHubPages[GitHub Pages] : "Serve Static Assets"
+            GitHubPages --> Browser[User Browser] : "Delivers index.html, JS, CSS"
+            Browser --> GameClient[TypeScript Game Client] : "Runs Game Logic"
+            GameClient --> HTML5Canvas[HTML5 Canvas Renderer] : "Renders Game State"
+            GameClient --> GameEngine[Game Engine - ECS] : "Manages Game Loop"
+            GameEngine --> UIComponents[UI: Joystick, Music Uploader, Inspector] : "Interacts with UI"
             style Application fill:#1E3A5F,color:#BFDBFE
-            Browser[Web Browser]
-            GameApp[Client-side Game - TS/HTML5 Canvas]
-            GameEngine[Game Engine]
-            GameUI[Game UI - Joystick, Music Uploader]
-            AssetLoader[Asset Loader]
-            WebAudioAPI[Web Audio API]
-            HTMLCanvas[HTML5 Canvas Renderer]
         end
 
         subgraph "Data"
+            GameClient --> StaticAssets[Static Assets - Sprites, Audio] : "Loads Game Resources"
+            UIComponents --> StaticAssets : "Uploads Local Music"
             style Data fill:#0F172A,color:#BFDBFE
-            LocalAssets[Game Assets - Sprites, Audio]
-            UserMusic[User Local Music Files]
         end
 
-        %% Data Flows
-        Dev --> GHA[Triggers Build/Deploy]
-        GHA --> Vite[Builds Static Assets]
-        Vite --> GHPages[Deploys 'dist' folder]
-        GHPages --> CDN[Serves Static Content]
-        User --> CDN[Accesses Game URL]
-        CDN --> Browser[Delivers Game Files]
-        Browser --> GameApp[Loads Game]
-        GameApp --> GameEngine[Initializes]
-        GameEngine --> AssetLoader[Loads Default Assets]
-        AssetLoader --> LocalAssets[Fetches Sprites/Audio]
-        GameEngine --> GameUI[Initializes UI]
-        GameUI --> UserMusic[User Uploads Music]
-        UserMusic --> WebAudioAPI[Processes Music File]
-        GameEngine --> WebAudioAPI[Manages Audio Playback/Effects]
-        GameEngine --> HTMLCanvas[Renders Game State]
-        User -.-> GameUI[Interacts via UI/Input]
-        CDN --> GHPSecurity[Protected by]
-
+        subgraph "Development & CI/CD"
+            GitHubActions[GitHub Actions] --> NodeJSEnv[Node.js Environment] : "Executes Workflows"
+            NodeJSEnv --> Vite[Vite Bundler] : "Builds Frontend"
+            NodeJSEnv --> Jest[Jest Testing Framework] : "Runs Unit Tests"
+            NodeJSEnv --> ESLint[ESLint Linter] : "Lints Code"
+            NodeJSEnv --> SharpLib[Sharp Image Library] : "Processes Sprites"
+            GitHubActions --> ArchitectAIPro[Architect AI Pro] : "Triggers Diagram Generation"
+            ArchitectAIPro --> ForemanAI[Foreman AI Audit] : "Submits for Compliance Audit"
+            ArchitectAIPro --> MermaidCLI[Mermaid CLI] : "Renders Diagram PNG"
+            ArchitectAIPro --> GitHubActions : "Updates docs/architecture.md"
+            GitHubActions --> GitHubPages : "Deploys Build Artifacts"
+        end
     end
 
     FOOTER[🏗️ Created with Architect AI Pro | BlueFalconInk LLC]
