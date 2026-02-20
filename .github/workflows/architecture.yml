@@ -63,6 +63,12 @@ jobs:
       - name: Install Dependencies
         run: pip install requests
 
+      - name: Install Draw.io CLI
+        run: |
+          wget -q https://github.com/jgraph/drawio-desktop/releases/download/v24.7.17/drawio-amd64-24.7.17.deb -O /tmp/drawio.deb
+          sudo dpkg -i /tmp/drawio.deb || sudo apt-get install -f -y
+          sudo apt-get install -y xvfb
+
       # ── Download Architect AI Pro scripts ──
       - name: Fetch Architect AI Pro Scripts
         run: |
@@ -145,7 +151,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/architecture.md docs/architecture.mermaid || true
+          git add docs/architecture.md docs/architecture.mermaid docs/architecture.drawio || true
           git add -f docs/architecture.png 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No changes to commit"
@@ -216,6 +222,7 @@ jobs:
           path: |
             ${{ env.OUTPUT_PATH }}
             docs/*.mermaid
+            docs/*.drawio
             docs/*.png
           retention-days: 30
 
