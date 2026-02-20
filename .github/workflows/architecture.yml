@@ -159,6 +159,7 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "docs: auto-update architecture diagram via Architect AI Pro [skip ci]"
+            git pull --rebase origin "${{ github.ref_name }}" || true
             git push
           fi
 
