@@ -150,10 +150,17 @@ jobs:
       # ── Commit on push/dispatch ──
       - name: "🚀 Commit Updated Blueprints"
         if: github.event_name != 'pull_request'
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "docs: auto-update architecture diagram via Architect AI Pro [skip ci]"
-          file_pattern: "docs/*.md docs/*.mermaid docs/*.png"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/architecture.md docs/architecture.mermaid || true
+          git add docs/architecture.png 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "docs: auto-update architecture diagram via Architect AI Pro [skip ci]"
+            git push
+          fi
 
       # ── Comment on PR ──
       - name: "💬 PR Diagram Preview"
