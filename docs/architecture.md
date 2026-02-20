@@ -1,7 +1,7 @@
 # 🏗️ BlueFalconInk LLC — videogamedev Architecture
 
 > **Created with [Architect AI Pro](https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/)** — the flagship architecture tool by **BlueFalconInk LLC**
-> Auto-generated on 2026-02-20 08:19 UTC | [GitHub Action source](https://github.com/koreric75/ArchitectAIPro_GHActions)
+> Auto-generated on 2026-02-20 08:24 UTC | [GitHub Action source](https://github.com/koreric75/ArchitectAIPro_GHActions)
 
 ![BlueFalconInk LLC](https://img.shields.io/badge/BlueFalconInk%20LLC-Standard-1E40AF)
 ![Architect AI Pro](https://img.shields.io/badge/Created%20with-Architect%20AI%20Pro-3B82F6)
@@ -12,72 +12,51 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 graph TD
     subgraph "BlueFalconInk LLC — videogamedev Architecture"
-        style "BlueFalconInk LLC — videogamedev Architecture" fill:#1E3A5F,color:#BFDBFE
-
-        User[Game Player]
+        User[End User]
 
         subgraph "Security"
-            GitHubCDN[GitHub Pages CDN/WAF]
-            style Security fill:#1E40AF,color:#BFDBFE
+            HTTPS[HTTPS / TLS]
         end
 
-        subgraph "Hosting"
-            GitHubPages[GitHub Pages Static Hosting]
+        subgraph "Static Hosting"
+            GH_Pages[GitHub Pages]
         end
 
-        subgraph "Client-side Game Application"
+        subgraph "Client Application"
+            style Client Application fill:#1E3A5F,color:#BFDBFE
             Browser[Web Browser]
-            GameEngine[Game Engine - TypeScript]
-            CoreSystems[ECS Core Systems]
-            GameScenes[Game Scenes]
-            GameUI[Game UI Components]
-            GameAssets[Game Assets - Sprites, Audio]
-            style "Client-side Game Application" fill:#1E3A5F,color:#BFDBFE
+            GameEngine[Game Engine - main.ts]
+            CoreSystems[Core Game Systems - ECS]
+            UISystems[UI Components]
+            MusicUploader[Music Uploader UI]
         end
 
-        subgraph "Development & Build"
-            Dev[Developer]
-            Vite[Vite Build Tool]
-            TypeScript[TypeScript Compiler]
-            ESLint[ESLint Code Quality]
-            Jest[Jest Test Runner]
-            Sharp[Sharp Image Processor]
+        subgraph "Data"
+            style Data fill:#0F172A,color:#BFDBFE
+            Assets[Local Game Assets]
+            Sprites[Sprites - SVG/PNG]
+            AudioFiles[Audio - MP3/WAV]
+            LocalAudio[User Local Audio Files]
         end
 
-        subgraph "CI/CD Pipeline"
-            GitHubActions[GitHub Actions]
-            GenerateDiagram[Architect AI Pro Diagram Generation]
-            ForemanAudit[Foreman AI Compliance Audit]
-            DeployPages[GitHub Pages Deploy Action]
-            ExportSprites[Sprite Export Action]
-        end
-
-        User -- Requests Game --> GitHubCDN
-        GitHubCDN -- Serves Static Files --> GitHubPages
-        GitHubPages -- Delivers index.html, JS, Assets --> Browser
-        Browser -- Runs --> GameEngine
-        GameEngine -- Manages Game Logic --> CoreSystems
-        GameEngine -- Renders/Updates --> GameScenes
-        GameEngine -- Interacts with --> GameUI
-        GameEngine -- Loads from --> GameAssets
-        GameUI -- User Input --> CoreSystems
-        GameUI -- Music Upload (Local File) --> CoreSystems
-        Dev -- Code Changes --> GitHubActions
-        GitHubActions -- Triggers Build --> Vite
-        Vite -- Compiles Source --> TypeScript
-        Vite -- Bundles Assets --> GameAssets
-        GitHubActions -- Runs Tests --> Jest
-        GitHubActions -- Lints Code --> ESLint
-        GitHubActions -- Generates Diagram --> GenerateDiagram
-        GenerateDiagram -- Audits Output --> ForemanAudit
-        GitHubActions -- Deploys Build Artifacts --> DeployPages
-        DeployPages -- Publishes Site --> GitHubPages
-        GitHubActions -- Exports Sprites --> ExportSprites
-        ExportSprites -- Processes Images --> Sharp
-        Sharp -- Outputs --> GameAssets
+        User --> Browser: Accesses URL
+        Browser --> HTTPS: Secure Request
+        HTTPS --> GH_Pages: Content Delivery
+        GH_Pages --> Browser: Serves HTML, JS, CSS, Assets
+        Browser --> GameEngine: Initializes & Runs
+        GameEngine --> CoreSystems: Manages Game Loop
+        GameEngine --> UISystems: Integrates UI
+        CoreSystems --> Assets: Loads & Uses
+        Assets --> Sprites: Provides Images
+        Assets --> AudioFiles: Provides Sounds
+        UISystems --> MusicUploader: Interacts with
+        MusicUploader --> LocalAudio: Uploads (Client-side)
+        LocalAudio --> CoreSystems: Provides Music Data
+        User --> UISystems: Input (Keyboard, Mouse, Touch)
     end
 
     FOOTER[🏗️ Created with Architect AI Pro | BlueFalconInk LLC]
+    style Security fill:#1E40AF,color:#BFDBFE
     style FOOTER fill:#1E40AF,color:#BFDBFE,stroke:#3B82F6
 ```
 
