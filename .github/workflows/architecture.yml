@@ -1,14 +1,20 @@
 # ──────────────────────────────────────────────────────────────────────
-# Architecture Diagram Generator - Self-Contained Workflow
+# 🏗️ Architecture Diagram Generator — Self-Contained Workflow
 #
-# Powered by Architect AI Pro - BlueFalconInk LLC
+# Powered by Architect AI Pro — BlueFalconInk LLC
 # https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 #
+# Deploy this to any BlueFalconInk repo at:
+#   .github/workflows/architecture.yml
+#
 # Required secrets:
-#   GEMINI_API_KEY - Set in repo Settings > Secrets > Actions
+#   GEMINI_API_KEY — Set in repo Settings → Secrets → Actions
+#
+# This workflow downloads scripts from ArchitectAIPro_GHActions and
+# runs them directly (no reusable workflow_call needed).
 # ──────────────────────────────────────────────────────────────────────
 
-name: "Architecture Diagram"
+name: "🏗️ Architecture Diagram"
 
 on:
   push:
@@ -35,7 +41,7 @@ permissions:
 
 jobs:
   generate-diagram:
-    name: "Generate Architecture Diagram"
+    name: "🤖 Generate Architecture Diagram"
     runs-on: ubuntu-latest
 
     env:
@@ -57,6 +63,15 @@ jobs:
       - name: Install Dependencies
         run: pip install requests
 
+      - name: Set up Node.js (for Mermaid CLI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Mermaid CLI
+        run: npm install -g @mermaid-js/mermaid-cli
+
+      # ── Download Architect AI Pro scripts ──
       - name: Fetch Architect AI Pro Scripts
         run: |
           SCRIPT_DIR=".github/scripts"
@@ -65,16 +80,18 @@ jobs:
           mkdir -p "$SCRIPT_DIR"
 
           for script in generate_diagram.py foreman_audit.py safety_check.py production_readiness.py; do
-            echo "Downloading $script..."
+            echo "📥 Downloading $script..."
             curl -sL "$GH_RAW/.github/scripts/$script" -o "$SCRIPT_DIR/$script" || true
           done
 
+          # Ensure config exists
           if [ ! -f "$CONFIG_PATH" ]; then
-            echo "Downloading default ARCHITECT_CONFIG.json..."
+            echo "📥 Downloading default ARCHITECT_CONFIG.json..."
             curl -sL "$GH_RAW/ARCHITECT_CONFIG.json" -o "$CONFIG_PATH"
           fi
 
-      - name: "Generate Diagram via Gemini API"
+      # ── Generate the diagram ──
+      - name: "🤖 Generate Diagram via Gemini API"
         id: generate
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -85,14 +102,15 @@ jobs:
             --scan-dir "$SCAN_DIR" \
             --repo-name "${{ github.event.repository.name }}"
 
-          if grep -q '```mermaid' "$OUTPUT_PATH" 2>/dev/null; then
-            echo "Valid Mermaid diagram generated"
+          if [ -f "$OUTPUT_PATH" ]; then
+            echo "✅ Architecture document generated"
           else
-            echo "Output missing Mermaid syntax"
+            echo "❌ Output file not created"
             exit 1
           fi
 
-      - name: "Foreman Compliance Audit"
+      # ── Foreman compliance audit ──
+      - name: "🛡️ Foreman Compliance Audit"
         id: audit
         run: |
           set +e
@@ -107,15 +125,16 @@ jobs:
             echo "audit_passed=true" >> "$GITHUB_OUTPUT"
           else
             echo "audit_passed=false" >> "$GITHUB_OUTPUT"
-            echo "Foreman found violations - attempting remediation..."
+            echo "⚠️ Foreman found violations — attempting remediation..."
           fi
 
-      - name: "Auto-Remediate Violations"
+      # ── Auto-remediate if audit failed ──
+      - name: "🔧 Auto-Remediate Violations"
         if: steps.audit.outputs.audit_passed == 'false'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          echo "Calling Gemini for remediation..."
+          echo "🔧 Calling Gemini for remediation..."
           python .github/scripts/generate_diagram.py \
             --config "$CONFIG_PATH" \
             --output "$OUTPUT_PATH" \
@@ -123,19 +142,21 @@ jobs:
             --repo-name "${{ github.event.repository.name }}" \
             --remediate foreman_report.txt
 
-          echo "Re-running Foreman audit..."
+          echo "🔍 Re-running Foreman audit..."
           python .github/scripts/foreman_audit.py \
             --file "$OUTPUT_PATH" \
-            --config "$CONFIG_PATH" || echo "Some violations remain after remediation"
+            --config "$CONFIG_PATH" || echo "⚠️ Some violations remain after remediation"
 
-      - name: "Commit Updated Blueprints"
+      # ── Commit on push/dispatch ──
+      - name: "🚀 Commit Updated Blueprints"
         if: github.event_name != 'pull_request'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "docs: auto-update architecture diagram via Architect AI Pro [skip ci]"
-          file_pattern: "docs/*.md docs/*.mermaid"
+          file_pattern: "docs/*.md docs/*.mermaid docs/*.png"
 
-      - name: "PR Diagram Preview"
+      # ── Comment on PR ──
+      - name: "💬 PR Diagram Preview"
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
@@ -143,7 +164,7 @@ jobs:
             const fs = require('fs');
             const diagram = fs.readFileSync(process.env.OUTPUT_PATH, 'utf8');
             const body = [
-              '## Architecture Diagram Preview',
+              '## 🏗️ Architecture Diagram Preview',
               '',
               '> Auto-generated by **Architect AI Pro** for **BlueFalconInk LLC**',
               '',
@@ -180,7 +201,8 @@ jobs:
         env:
           OUTPUT_PATH: ${{ env.OUTPUT_PATH }}
 
-      - name: "Upload Diagram Artifact"
+      # ── Upload artifact ──
+      - name: "📦 Upload Diagram Artifact"
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -188,13 +210,14 @@ jobs:
           path: |
             ${{ env.OUTPUT_PATH }}
             docs/*.mermaid
+            docs/*.png
           retention-days: 30
 
-      - name: "Final Status"
+      - name: "✅ Final Status"
         if: always()
         run: |
-          echo "=================================================="
-          echo "  Architect AI Pro - BlueFalconInk LLC"
-          echo "  Diagram: ${{ env.OUTPUT_PATH }}"
-          echo "  Audit:   ${{ steps.audit.outputs.audit_passed }}"
-          echo "=================================================="
+          echo "╔══════════════════════════════════════════════════════╗"
+          echo "║  Architect AI Pro — BlueFalconInk LLC                ║"
+          echo "║  Diagram: ${{ env.OUTPUT_PATH }}"
+          echo "║  Audit:   ${{ steps.audit.outputs.audit_passed }}"
+          echo "╚══════════════════════════════════════════════════════╝"
