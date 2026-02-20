@@ -1,0 +1,71 @@
+{
+  "org_name": "BlueFalconInk LLC",
+  "version": "1.0.0",
+  "styling": {
+    "theme": "dark",
+    "primary_color": "#1E40AF",
+    "secondary_color": "#BFDBFE",
+    "font_family": "Inter, sans-serif",
+    "layout_engine": "elk"
+  },
+  "technical_constraints": {
+    "preferred_cloud": "AWS",
+    "iac_tool": "Terraform",
+    "container_orchestration": "Kubernetes (EKS)",
+    "database_defaults": ["PostgreSQL", "Redis"],
+    "api_standard": "GraphQL"
+  },
+  "diagram_rules": {
+    "show_data_flow": true,
+    "include_security_layer": true,
+    "group_by": "domain",
+    "output_format": "mermaid",
+    "auto_link_documentation": true,
+    "cloud_cdn": true
+  },
+  "flagships": {
+    "ArchitectAI": {
+      "domain": "Architecture/AI",
+      "description": "The engine behind the BlueFalconInk LLC Standard - turning technical intent into blueprints"
+    },
+    "ProposalBuddyAI": {
+      "domain": "Automation/Bids",
+      "description": "Ruthless Automation in the proposal space - 80% reduction in technical assessment drag"
+    },
+    "Clipstream": {
+      "domain": "Media/RC Hobby",
+      "description": "Media engine for @BlueFalconRCandMedia - high-fidelity video and RC telemetry"
+    },
+    "InstructionalVideoSite": {
+      "domain": "Education/SaaS",
+      "description": "Subscription-based how-to videos: IT, Cooking, Music, Instrument Lessons",
+      "subscription": {
+        "provider": "Stripe",
+        "require_cdn": true,
+        "require_signed_urls": true,
+        "require_security_boundary": true
+      }
+    }
+  },
+  "branding": {
+    "org_name": "BlueFalconInk LLC",
+    "flagship_tool": "Architect AI Pro",
+    "live_app_url": "https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/",
+    "github_action_repo": "https://github.com/koreric75/ArchitectAIPro_GHActions",
+    "primary_color": "#1E40AF",
+    "secondary_color": "#BFDBFE",
+    "accent_color": "#3B82F6",
+    "dark_bg": "#0F172A",
+    "tagline": "Automated Governance. Living Blueprints. Ruthless Consistency.",
+    "copyright": "© BlueFalconInk LLC. All rights reserved."
+  },
+  "compliance": {
+    "require_security_subgraph": true,
+    "require_branding": true,
+    "require_tool_attribution": true,
+    "require_brand_colors": true,
+    "block_non_standard_providers": true,
+    "require_waf_alb_for_public": true,
+    "pci_compliance_for_payments": true
+  }
+}

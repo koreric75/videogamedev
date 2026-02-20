@@ -1,0 +1,40 @@
+# ──────────────────────────────────────────────────────────────────────
+# 🏗️ Architecture Diagram Generator — Caller Workflow
+#
+# Powered by Architect AI Pro — BlueFalconInk LLC
+# https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
+#
+# Required secrets:
+#   GEMINI_API_KEY — Set in repo Settings → Secrets → Actions
+# ──────────────────────────────────────────────────────────────────────
+
+name: "🏗️ Architecture Diagram"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "server/**"
+      - "services/**"
+      - "components/**"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.py"
+      - "**/*.js"
+      - "Dockerfile"
+      - "docker-compose*.yml"
+      - "terraform/**"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  architecture:
+    uses: koreric75/ArchitectAIPro_GHActions/.github/workflows/arch-sync.yml@main
+    with:
+      config_path: "ARCHITECT_CONFIG.json"
+      output_path: "docs/architecture.md"
+      scan_dir: "."
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
