@@ -1,7 +1,7 @@
 # 🏗️ BlueFalconInk LLC — videogamedev Architecture
 
 > **Created with [Architect AI Pro](https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/)** — the flagship architecture tool by **BlueFalconInk LLC**
-> Auto-generated on 2026-02-20 08:08 UTC | [GitHub Action source](https://github.com/koreric75/ArchitectAIPro_GHActions)
+> Auto-generated on 2026-02-20 08:13 UTC | [GitHub Action source](https://github.com/koreric75/ArchitectAIPro_GHActions)
 
 ![BlueFalconInk LLC](https://img.shields.io/badge/BlueFalconInk%20LLC-Standard-1E40AF)
 ![Architect AI Pro](https://img.shields.io/badge/Created%20with-Architect%20AI%20Pro-3B82F6)
@@ -12,99 +12,95 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 graph TD
     subgraph "BlueFalconInk LLC — videogamedev Architecture"
-        style "BlueFalconInk LLC — videogamedev Architecture" fill:#1E3A5F,color:#BFDBFE
-
-        User["👤 User"]
-
-        subgraph Security
-            style Security fill:#1E40AF,color:#BFDBFE
-            WAF["AWS WAF"]
-            CDN["AWS CloudFront (CDN)"]
+        subgraph External
+            UserDevice["👤 User Device"]
+            GeminiAPI["Google Gemini API"]
         end
 
-        subgraph Frontend
+        subgraph "Security & CDN (BlueFalconInk Standard)"
+            AWS_WAF["AWS WAF"]
+            AWS_CloudFront["AWS CloudFront (CDN)"]
+        end
+        style "Security & CDN (BlueFalconInk Standard)" fill:#1E40AF,color:#BFDBFE
+
+        subgraph "Hosting (Actual Deployment)"
+            GitHubPages["GitHub Pages (Static Hosting)"]
+        end
+        style "Hosting (Actual Deployment)" fill:#1E3A5F,color:#BFDBFE
+
+        subgraph "Client-side Game Application"
             Browser["🌐 Web Browser"]
-            GameEngine["GameEngine (main.ts, engine.ts)"]
-            VirtualJoystick["VirtualJoystick (UI)"]
-            ActionButton["ActionButton (UI)"]
-            MusicUploader["MusicUploader (UI)"]
-            SpriteInspector["SpriteInspector (Debug UI)"]
-        end
+            HTML_Canvas["HTML5 Canvas"]
+            Game_UI["Game UI (Joystick, Music Uploader, Sprite Inspector)"]
 
-        subgraph "Application (Game Core)"
-            MainScene["MainScene (Game Logic)"]
-            ECS["ECS (Entities, Components, Systems)"]
-            InputSystem["InputSystem (Keyboard, Mouse, Touch)"]
-            PhysicsSystem["PhysicsSystem (core/physics.ts)"]
-            AssetManager["AssetManager (core/assets.ts)"]
-            AudioManager["AudioManager (core/audio.ts)"]
-            SpriteSpawner["SpriteSpawner (game/spawn.ts)"]
-            GameConfig["Game Configuration (config.ts)"]
+            subgraph "Game Engine & Core Logic"
+                GameEngine["Game Engine (main.ts, engine.ts)"]
+                GameConfig["Game Configuration (config.ts)"]
+                SpawnManager["Spawn Manager (spawn.ts)"]
+                MainScene["Main Scene (scenes/mainScene.ts)"]
+            end
+            style "Game Engine & Core Logic" fill:#1E3A5F,color:#BFDBFE
+
+            subgraph "Core Game Systems (ECS)"
+                EntityManager["Entity Manager (core/entity.ts)"]
+                PhysicsSystem["Physics System (core/physics.ts)"]
+                RenderSystem["Render System (core/render.ts)"]
+                InputSystem["Input System (core/input.ts)"]
+                AssetLoader["Asset Loader (core/assets.ts)"]
+                AudioManager["Audio Manager (core/audio.ts)"]
+            end
+            style "Core Game Systems (ECS)" fill:#1E3A5F,color:#BFDBFE
         end
+        style "Client-side Game Application" fill:#1E3A5F,color:#BFDBFE
 
         subgraph "Data & Assets"
-            style "Data & Assets" fill:#0F172A,color:#BFDBFE
-            StaticSprites["Static Sprites (assets/sprites)"]
-            StaticAudio["Static Audio (assets/audio)"]
-            LocalFiles["📁 User Local Audio Files"]
+            SpriteAssets["Sprite Assets (assets/sprites/)"]
+            AudioAssets["Audio Assets (assets/audio/)"]
+        end
+        style "Data & Assets" fill:#0F172A,color:#BFDBFE
+
+        subgraph "Build & CI/CD"
+            GitHubActions["GitHub Actions"]
+            ViteBuild["Vite Build (vite.config.ts)"]
+            ESLint["ESLint"]
+            JestTests["Jest Tests"]
+            SpriteExportScript["Sprite Export Script (scripts/export-sprites.js)"]
+            ArchitectAIPro["Architect AI Pro (Diagram Generator)"]
         end
 
-        subgraph "Development & Automation"
-            BuildTool["Vite (Build & Dev Server)"]
-            SpriteExporter["Sprite Export Script (scripts/export-sprites.js)"]
-            GitHubActions["GitHub Actions (CI/CD)"]
-            ForemanAudit["Foreman Audit Script"]
-            DiagramGenerator["Diagram Generator Script"]
-            ProductionReadiness["Production Readiness Script"]
-            StaticHosting["Static Hosting (GitHub Pages)"]
-        end
+        %% Data Flows
+        UserDevice --> Browser : Access Game
+        Browser --> AWS_CloudFront : Request Static Assets (BlueFalconInk Standard)
+        AWS_CloudFront --> AWS_WAF : Filter Requests
+        AWS_WAF --> GitHubPages : Get Static Content
+        GitHubPages -- Serves --> AWS_WAF : Static Files
 
-        User --> Browser: Access Game
-        Browser --> WAF: HTTP/S Request
-        WAF --> CDN: Filtered Traffic
-        CDN --> StaticHosting: Serve Static Files
-        StaticHosting --> Browser: HTML, JS, CSS, Assets
+        Browser -- Renders --> HTML_Canvas
+        UserDevice -- Input --> Game_UI : User Interaction
+        Game_UI -- Controls --> InputSystem : Game Input
+        InputSystem -- Events --> GameEngine : Process Input
+        GameEngine -- Initializes --> GameConfig : Load Settings
+        GameEngine -- Manages --> MainScene : Scene Logic
+        GameEngine -- Uses --> Game_UI : UI Integration
+        GameEngine -- Orchestrates --> CoreGameSystems["Core Game Systems (ECS)"] : Game Loop
+        MainScene -- Interacts With --> CoreGameSystems : Game Logic
+        CoreGameSystems -- Manages --> EntityManager : Entities & Components
+        EntityManager -- Updates --> PhysicsSystem : Apply Physics
+        EntityManager -- Renders --> RenderSystem : Draw Game State
+        AssetLoader -- Loads --> SpriteAssets : Game Sprites
+        AssetLoader -- Loads --> AudioAssets : Game Sounds
+        AudioManager -- Plays --> AudioAssets : Sound Effects & Music
+        Game_UI -- Uploads Music (Client-side) --> AudioManager : User Music File
 
-        Browser -- Renders --> GameEngine
-        GameEngine -- Initializes --> MainScene
-        GameEngine -- Manages --> ECS
-        GameEngine -- Loads --> AssetManager
-        GameEngine -- Loads --> AudioManager
-        GameEngine -- Handles --> InputSystem
-        GameEngine -- Initializes --> VirtualJoystick
-        GameEngine -- Initializes --> ActionButton
-        GameEngine -- Initializes --> MusicUploader
-        GameEngine -- Initializes --> SpriteInspector
-
-        InputSystem --> MainScene: Player Input
-        VirtualJoystick --> InputSystem: Mobile Input
-        ActionButton --> InputSystem: Mobile Action
-        MusicUploader --> LocalFiles: Select Audio
-        LocalFiles --> AudioManager: Upload Music
-
-        AssetManager --> StaticSprites: Load Sprites
-        AudioManager --> StaticAudio: Load SFX
-
-        MainScene -- Uses --> ECS
-        ECS -- Uses --> PhysicsSystem
-        ECS -- Uses --> GameConfig
-        PhysicsSystem --> ECS: Update Entity Physics
-        SpriteSpawner --> ECS: Create Game Objects
-        GameEngine -- Uses --> SpriteSpawner
-
-        MainScene -- Renders --> Browser: Canvas Output
-
-        BuildTool --> GameEngine: Bundles Code
-        BuildTool --> StaticHosting: Deploys `dist/`
-        SpriteExporter --> StaticSprites: Process SVGs to PNGs
-
-        GitHubActions --> BuildTool: Trigger Build
-        GitHubActions --> SpriteExporter: Trigger Export
-        GitHubActions --> StaticHosting: Deploy
-        GitHubActions --> DiagramGenerator: Generate Diagram
-        DiagramGenerator --> ForemanAudit: Audit Diagram
-        ForemanAudit --> DiagramGenerator: Remediation Feedback
-        GitHubActions --> ProductionReadiness: Check Readiness
+        %% Build & Deployment Flows
+        GitHubActions -- Triggers --> ViteBuild : CI/CD Workflow
+        ViteBuild -- Builds --> GitHubPages : Deploy Static Site
+        GitHubActions -- Runs --> ESLint : Code Quality Check
+        GitHubActions -- Runs --> JestTests : Unit Testing
+        GitHubActions -- Runs --> SpriteExportScript : Asset Processing
+        GitHubActions -- Generates Diagram --> ArchitectAIPro : Architecture Workflow
+        ArchitectAIPro -- Calls --> GeminiAPI : AI Generation
+        ArchitectAIPro -- Writes --> GitHubActions : Updated docs/architecture.md
     end
 
     FOOTER["🏗️ Created with Architect AI Pro | BlueFalconInk LLC"]
