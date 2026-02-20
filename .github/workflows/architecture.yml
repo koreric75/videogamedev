@@ -63,14 +63,6 @@ jobs:
       - name: Install Dependencies
         run: pip install requests
 
-      - name: Set up Node.js (for Mermaid CLI)
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install Mermaid CLI
-        run: npm install -g @mermaid-js/mermaid-cli
-
       # ── Download Architect AI Pro scripts ──
       - name: Fetch Architect AI Pro Scripts
         run: |
