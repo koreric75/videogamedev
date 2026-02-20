@@ -2,42 +2,61 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 graph TD
     subgraph "BlueFalconInk LLC - videogamedev Architecture"
-        User[End User]
+        User[Game Player]
 
-        subgraph "Security"
-            GHPH[GitHub Pages HTTPS]
+        subgraph "Client Browser"
+            ClientBrowser[Web Browser]
+            subgraph "Game Application"
+                GameApp[HTML5 Canvas Game]
+                GameEngine[TypeScript Game Engine]
+                AssetLoader[Asset Loading System]
+                AudioSystem[Web Audio API System]
+                UISystem[Virtual Joystick · Music Uploader]
+            end
         end
 
+        subgraph "Static Hosting"
+            GitHubPagesCDN[GitHub Pages CDN]
+            GitHubPages[GitHub Pages Static Hosting]
+        end
+
+        subgraph "Security"
+            HTTPS[HTTPS Encryption]
+        end
+        style Security fill:#1E40AF,color:#BFDBFE
+
         subgraph "Application"
-            User -->|Browser Access HTTPS| GHPH
-            GHPH -->|Serves Static Files| GHPages[GitHub Pages Hosting]
-            GHPages -->|Delivers HTML, JS, CSS, Assets| Browser[User Browser]
-
-            subgraph "Client-Side Application"
-                Browser -->|Loads| StaticApp[Vite Static Web App]
-                StaticApp -->|Initializes| GameEngine[Game Engine · main.ts]
-                GameEngine -->|Manages Game Loop| ECSCore[ECS Core Systems]
-                GameEngine -->|Loads| GameAssets[Game Assets · sprites, audio]
-                GameEngine -->|Interacts with| UIComponents[UI Components · Joystick, Music Uploader]
-                UIComponents -->|User Input| User
-                UIComponents -->|Music File Upload| UserUploadedMusic[User Uploaded Music File]
-            end
-
-            ECSCore -->|Game State Updates| BrowserLocalStorage[Browser Local Storage]
-            GameEngine -->|Renders to| HTML5Canvas[HTML5 Canvas]
-            UserUploadedMusic -->|Processed by Web Audio API| ECSCore
+            style Application fill:#1E3A5F,color:#BFDBFE
+            GameApp
+            GameEngine
+            AssetLoader
+            AudioSystem
+            UISystem
         end
 
         subgraph "Data"
-            BrowserLocalStorage[Browser Local Storage]
-            GameAssets[Game Assets · sprites, audio]
-            UserUploadedMusic[User Uploaded Music File]
+            UserMusicFile[User Uploaded Music File]
+            StaticAssets[HTML, JS, CSS, Sprites, Audio]
         end
-    end
+        style Data fill:#0F172A,color:#BFDBFE
 
-    style Security fill:#1E40AF,color:#BFDBFE
-    style Application fill:#1E3A5F,color:#BFDBFE
-    style Data fill:#0F172A,color:#BFDBFE
+        User -->|Accesses via| ClientBrowser
+        ClientBrowser -->|Requests Game Assets| GitHubPagesCDN
+        GitHubPagesCDN -->|Serves Static Content over| HTTPS
+        HTTPS -->|Delivers| StaticAssets
+        StaticAssets -->|Bundled with| GameApp
+        ClientBrowser -->|Runs| GameApp
+        GameApp -->|Manages Game Logic| GameEngine
+        GameEngine -->|Loads Game Assets| AssetLoader
+        AssetLoader -->|Uses| StaticAssets
+        GameEngine -->|Manages Sound| AudioSystem
+        AudioSystem -->|Processes| UserMusicFile
+        GameEngine -->|Handles Input & UI| UISystem
+        UISystem -->|User Interaction| User
+        UISystem -->|Uploads| UserMusicFile
+        GitHubPagesCDN -->|Hosted on| GitHubPages
+
+    end
 
     FOOTER[🏗️ Created with Architect AI Pro · BlueFalconInk LLC]
     style FOOTER fill:#1E40AF,color:#BFDBFE,stroke:#3B82F6
