@@ -2,96 +2,70 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 graph TD
     subgraph "BlueFalconInk LLC — videogamedev Architecture"
-        subgraph External
-            UserDevice["👤 User Device"]
-            GeminiAPI["Google Gemini API"]
+        style "BlueFalconInk LLC — videogamedev Architecture" fill:#1E3A5F,color:#BFDBFE
+
+        User[Game Player]
+
+        subgraph "Security"
+            GitHubCDN[GitHub Pages CDN/WAF]
+            style Security fill:#1E40AF,color:#BFDBFE
         end
 
-        subgraph "Security & CDN (BlueFalconInk Standard)"
-            AWS_WAF["AWS WAF"]
-            AWS_CloudFront["AWS CloudFront (CDN)"]
+        subgraph "Hosting"
+            GitHubPages[GitHub Pages Static Hosting]
         end
-        style "Security & CDN (BlueFalconInk Standard)" fill:#1E40AF,color:#BFDBFE
-
-        subgraph "Hosting (Actual Deployment)"
-            GitHubPages["GitHub Pages (Static Hosting)"]
-        end
-        style "Hosting (Actual Deployment)" fill:#1E3A5F,color:#BFDBFE
 
         subgraph "Client-side Game Application"
-            Browser["🌐 Web Browser"]
-            HTML_Canvas["HTML5 Canvas"]
-            Game_UI["Game UI (Joystick, Music Uploader, Sprite Inspector)"]
-
-            subgraph "Game Engine & Core Logic"
-                GameEngine["Game Engine (main.ts, engine.ts)"]
-                GameConfig["Game Configuration (config.ts)"]
-                SpawnManager["Spawn Manager (spawn.ts)"]
-                MainScene["Main Scene (scenes/mainScene.ts)"]
-            end
-            style "Game Engine & Core Logic" fill:#1E3A5F,color:#BFDBFE
-
-            subgraph "Core Game Systems (ECS)"
-                EntityManager["Entity Manager (core/entity.ts)"]
-                PhysicsSystem["Physics System (core/physics.ts)"]
-                RenderSystem["Render System (core/render.ts)"]
-                InputSystem["Input System (core/input.ts)"]
-                AssetLoader["Asset Loader (core/assets.ts)"]
-                AudioManager["Audio Manager (core/audio.ts)"]
-            end
-            style "Core Game Systems (ECS)" fill:#1E3A5F,color:#BFDBFE
-        end
-        style "Client-side Game Application" fill:#1E3A5F,color:#BFDBFE
-
-        subgraph "Data & Assets"
-            SpriteAssets["Sprite Assets (assets/sprites/)"]
-            AudioAssets["Audio Assets (assets/audio/)"]
-        end
-        style "Data & Assets" fill:#0F172A,color:#BFDBFE
-
-        subgraph "Build & CI/CD"
-            GitHubActions["GitHub Actions"]
-            ViteBuild["Vite Build (vite.config.ts)"]
-            ESLint["ESLint"]
-            JestTests["Jest Tests"]
-            SpriteExportScript["Sprite Export Script (scripts/export-sprites.js)"]
-            ArchitectAIPro["Architect AI Pro (Diagram Generator)"]
+            Browser[Web Browser]
+            GameEngine[Game Engine - TypeScript]
+            CoreSystems[ECS Core Systems]
+            GameScenes[Game Scenes]
+            GameUI[Game UI Components]
+            GameAssets[Game Assets - Sprites, Audio]
+            style "Client-side Game Application" fill:#1E3A5F,color:#BFDBFE
         end
 
-        %% Data Flows
-        UserDevice --> Browser : Access Game
-        Browser --> AWS_CloudFront : Request Static Assets (BlueFalconInk Standard)
-        AWS_CloudFront --> AWS_WAF : Filter Requests
-        AWS_WAF --> GitHubPages : Get Static Content
-        GitHubPages -- Serves --> AWS_WAF : Static Files
+        subgraph "Development & Build"
+            Dev[Developer]
+            Vite[Vite Build Tool]
+            TypeScript[TypeScript Compiler]
+            ESLint[ESLint Code Quality]
+            Jest[Jest Test Runner]
+            Sharp[Sharp Image Processor]
+        end
 
-        Browser -- Renders --> HTML_Canvas
-        UserDevice -- Input --> Game_UI : User Interaction
-        Game_UI -- Controls --> InputSystem : Game Input
-        InputSystem -- Events --> GameEngine : Process Input
-        GameEngine -- Initializes --> GameConfig : Load Settings
-        GameEngine -- Manages --> MainScene : Scene Logic
-        GameEngine -- Uses --> Game_UI : UI Integration
-        GameEngine -- Orchestrates --> CoreGameSystems["Core Game Systems (ECS)"] : Game Loop
-        MainScene -- Interacts With --> CoreGameSystems : Game Logic
-        CoreGameSystems -- Manages --> EntityManager : Entities & Components
-        EntityManager -- Updates --> PhysicsSystem : Apply Physics
-        EntityManager -- Renders --> RenderSystem : Draw Game State
-        AssetLoader -- Loads --> SpriteAssets : Game Sprites
-        AssetLoader -- Loads --> AudioAssets : Game Sounds
-        AudioManager -- Plays --> AudioAssets : Sound Effects & Music
-        Game_UI -- Uploads Music (Client-side) --> AudioManager : User Music File
+        subgraph "CI/CD Pipeline"
+            GitHubActions[GitHub Actions]
+            GenerateDiagram[Architect AI Pro Diagram Generation]
+            ForemanAudit[Foreman AI Compliance Audit]
+            DeployPages[GitHub Pages Deploy Action]
+            ExportSprites[Sprite Export Action]
+        end
 
-        %% Build & Deployment Flows
-        GitHubActions -- Triggers --> ViteBuild : CI/CD Workflow
-        ViteBuild -- Builds --> GitHubPages : Deploy Static Site
-        GitHubActions -- Runs --> ESLint : Code Quality Check
-        GitHubActions -- Runs --> JestTests : Unit Testing
-        GitHubActions -- Runs --> SpriteExportScript : Asset Processing
-        GitHubActions -- Generates Diagram --> ArchitectAIPro : Architecture Workflow
-        ArchitectAIPro -- Calls --> GeminiAPI : AI Generation
-        ArchitectAIPro -- Writes --> GitHubActions : Updated docs/architecture.md
+        User -- Requests Game --> GitHubCDN
+        GitHubCDN -- Serves Static Files --> GitHubPages
+        GitHubPages -- Delivers index.html, JS, Assets --> Browser
+        Browser -- Runs --> GameEngine
+        GameEngine -- Manages Game Logic --> CoreSystems
+        GameEngine -- Renders/Updates --> GameScenes
+        GameEngine -- Interacts with --> GameUI
+        GameEngine -- Loads from --> GameAssets
+        GameUI -- User Input --> CoreSystems
+        GameUI -- Music Upload (Local File) --> CoreSystems
+        Dev -- Code Changes --> GitHubActions
+        GitHubActions -- Triggers Build --> Vite
+        Vite -- Compiles Source --> TypeScript
+        Vite -- Bundles Assets --> GameAssets
+        GitHubActions -- Runs Tests --> Jest
+        GitHubActions -- Lints Code --> ESLint
+        GitHubActions -- Generates Diagram --> GenerateDiagram
+        GenerateDiagram -- Audits Output --> ForemanAudit
+        GitHubActions -- Deploys Build Artifacts --> DeployPages
+        DeployPages -- Publishes Site --> GitHubPages
+        GitHubActions -- Exports Sprites --> ExportSprites
+        ExportSprites -- Processes Images --> Sharp
+        Sharp -- Outputs --> GameAssets
     end
 
-    FOOTER["🏗️ Created with Architect AI Pro | BlueFalconInk LLC"]
+    FOOTER[🏗️ Created with Architect AI Pro | BlueFalconInk LLC]
     style FOOTER fill:#1E40AF,color:#BFDBFE,stroke:#3B82F6
