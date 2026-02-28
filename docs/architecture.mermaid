@@ -2,17 +2,17 @@
 %% https://architect-ai-pro-mobile-edition-484078543321.us-west1.run.app/
 %% Remediated by Architect AI Pro Foreman
 graph TD
-    subgraph "BlueFalconInk LLC - videogamedev Architecture"
+    subgraph BFI_Arch ["BlueFalconInk LLC - videogamedev Architecture"]
         User[Player/User]
 
-        subgraph "Security"
+        subgraph SecuritySG ["Security"]
             CloudLoadBalancer[Cloud Load Balancer · HTTPS]
             CloudArmor[Cloud Armor · WAF/DDoS]
         end
-        style Security fill:#1E40AF,color:#BFDBFE
+        style SecuritySG fill:#1E40AF,color:#BFDBFE
 
-        subgraph "Application"
-            style Application fill:#1E3A5F,color:#BFDBFE
+        subgraph ApplicationSG ["Application"]
+            style ApplicationSG fill:#1E3A5F,color:#BFDBFE
             Browser[Web Browser]
             GameClient[Game Client · TypeScript/HTML5 Canvas]
             GameEngine[Game Engine]
@@ -24,8 +24,8 @@ graph TD
             UISystem[UI Components · Joystick, Music Uploader, Inspector]
         end
 
-        subgraph "Data"
-            style Data fill:#0F172A,color:#BFDBFE
+        subgraph DataSG ["Data"]
+            style DataSG fill:#0F172A,color:#BFDBFE
             CloudStorage[Cloud Storage · Static Assets]
             CloudCDN[Cloud CDN]
             LocalFileSystem[User Local File System]
