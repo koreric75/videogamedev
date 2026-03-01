@@ -14,7 +14,7 @@
     "export:sprites": "node scripts/export-sprites.js"
   },
   "devDependencies": {
-    "typescript": "^4.5.0",
+    "typescript": "^5.9.3",
     "jest": "^29.0.0",
     "ts-jest": "^29.0.0",
     "@types/jest": "^29.0.0",
