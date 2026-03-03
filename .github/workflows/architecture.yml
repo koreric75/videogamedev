@@ -41,6 +41,7 @@ permissions:
 
 jobs:
   generate-diagram:
+    continue-on-error: true
     name: "🤖 Generate Architecture Diagram"
     runs-on: ubuntu-latest
 
