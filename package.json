@@ -20,7 +20,7 @@
     "@types/jest": "^29.0.0",
     "jest-environment-jsdom": "^29.0.0",
     "sharp": "^0.32.1",
-    "vite": "^7.2.7",
+    "vite": "^8.0.1",
     "eslint": "^8.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0"
